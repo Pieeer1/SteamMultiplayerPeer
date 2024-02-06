@@ -4,7 +4,7 @@ using Steamworks;
 using System;
 using System.Collections.Generic;
 
-namespace SteamMultiplayerPeer.Steam;
+namespace Steam;
 public partial class SteamConnection : RefCounted
 {
     public bool IsActive { get; private set; }

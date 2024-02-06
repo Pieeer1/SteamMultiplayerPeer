@@ -6,7 +6,7 @@ using System;
 using Steamworks;
 using System.Linq;
 
-namespace SteamMultiplayerPeer.Steam;
+namespace Steam;
 public class SteamSocketManager : SocketManager
 {
     private Dictionary<Connection, List<SteamNetworkingMessage>> _connectionMessages = new Dictionary<Connection, List<SteamNetworkingMessage>>();

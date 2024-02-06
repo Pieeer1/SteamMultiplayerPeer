@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace SteamMultiplayerPeer.Steam;
+namespace Steam;
 public partial class SteamManager : Node
 {
     private const uint _steamAppId = 480; // replace with your own steam id

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 
-namespace SteamMultiplayerPeer.Steam;
+namespace Steam;
 internal static class SteamExtensions
 {
     public static byte[] ToBytes<T>(this T t) where T : struct
