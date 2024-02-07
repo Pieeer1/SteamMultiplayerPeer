@@ -49,6 +49,7 @@ public partial class UI : Control
                     Steam.SteamMultiplayerPeer peer = new Steam.SteamMultiplayerPeer();
                     peer.CreateClient(this.SteamManager().PlayerSteamID, lobby.Value.Owner.Id);
                     Multiplayer.MultiplayerPeer = peer;
+                    Rpc(nameof(RequestOtherUsers));
                 };
                 timer.Start();
 
@@ -76,6 +77,7 @@ public partial class UI : Control
             Multiplayer.MultiplayerPeer = steamMultiplayerPeer;
 
             AddPlayer(1);
+            RefreshPlayerList();
         };
 
         Multiplayer.PeerConnected += (peer) =>
@@ -91,6 +93,23 @@ public partial class UI : Control
         _inLobby = true;
         await this.SteamManager().CreateLobby();
 
+    }
+    [Rpc(MultiplayerApi.RpcMode.AnyPeer, CallLocal = true)]
+    public void RequestOtherUsers()
+    {
+        Rpc(nameof(RefreshPlayerList));
+    }
+    [Rpc]
+    public void RefreshPlayerList()
+    {
+        if (Multiplayer.IsServer())
+        {
+            _memberVbox.GetChildren().ToList().ForEach(x => x.QueueFree());
+            foreach (var player in _playerSpawnerNode.GetChildren().Cast<Player>())
+            {
+                _memberVbox.AddChild(new Label() { Text = player.ToString(), Name = player.ToString() });
+            }
+        }
     }
 
     private async Task OnJoinButtonPressed()
