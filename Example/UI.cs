@@ -1,4 +1,5 @@
 using Godot;
+using Godot.Collections;
 using SteamMultiplayerPeer.Example;
 using Steamworks.Data;
 using System.Collections.Generic;
@@ -49,14 +50,10 @@ public partial class UI : Control
                     Steam.SteamMultiplayerPeer peer = new Steam.SteamMultiplayerPeer();
                     peer.CreateClient(this.SteamManager().PlayerSteamID, lobby.Value.Owner.Id);
                     Multiplayer.MultiplayerPeer = peer;
-                    Rpc(nameof(RequestOtherUsers));
                 };
                 timer.Start();
-
             }
-
         };
-
     }
 
     public override void _Process(double delta)
@@ -68,7 +65,6 @@ public partial class UI : Control
 
     private async Task OnHostButtonPressed()
     {
-
         this.SteamManager().OnLobbySuccessfullyCreated += (lobbyId) =>
         {
             _lobbyIdLabel.Text = lobbyId.Id.ToString();
@@ -77,37 +73,33 @@ public partial class UI : Control
             Multiplayer.MultiplayerPeer = steamMultiplayerPeer;
 
             AddPlayer(1);
-            RefreshPlayerList();
+            RefreshPlayerList(new Array<Variant>(new Variant[] { (Variant)"1"}));
         };
 
         Multiplayer.PeerConnected += (peer) =>
         {
-            AddPlayer((ulong)peer);
-            _memberVbox.AddChild(new Label() { Text = peer.ToString(), Name = peer.ToString() });
+            AddPlayer(peer);
+            Rpc(nameof(RefreshPlayerList), new Array(_playerSpawnerNode.GetChildren().Cast<Player>().Select(x => (Variant)x.Name)));
         };
         Multiplayer.PeerDisconnected += (peer) =>
         {
-            _memberVbox.RemoveChild(_memberVbox.GetNode(peer.ToString()));
+            RemovePlayer(peer);
+            Rpc(nameof(RefreshPlayerList), new Array(_playerSpawnerNode.GetChildren().Cast<Player>().Select(x => (Variant)x.Name)));
         };
 
         _inLobby = true;
         await this.SteamManager().CreateLobby();
 
     }
-    [Rpc(MultiplayerApi.RpcMode.AnyPeer, CallLocal = true)]
-    public void RequestOtherUsers()
-    {
-        Rpc(nameof(RefreshPlayerList));
-    }
     [Rpc]
-    public void RefreshPlayerList()
+    public void RefreshPlayerList(Array<Variant> players)
     {
         if (Multiplayer.IsServer())
         {
             _memberVbox.GetChildren().ToList().ForEach(x => x.QueueFree());
-            foreach (var player in _playerSpawnerNode.GetChildren().Cast<Player>())
+            foreach (var player in players)
             {
-                _memberVbox.AddChild(new Label() { Text = player.Name.ToString(), Name = player.Name.ToString() });
+                _memberVbox.AddChild(new Label() { Text = player.ToString(), Name = player.ToString() });
             }
         }
     }
@@ -122,10 +114,15 @@ public partial class UI : Control
         GetTree().Quit();
     }
 
-    private void AddPlayer(ulong id)
+    private void AddPlayer(long id)
     {
         Player playerRef = _playerScene.Instantiate<Player>();
         playerRef.Name = id.ToString();
         _playerSpawnerNode.AddChild(playerRef, true);
+    }
+    private void RemovePlayer(long id)
+    {         
+        Player playerRef = _playerSpawnerNode.GetNode<Player>(id.ToString());
+        playerRef.QueueFree();
     }
 }
