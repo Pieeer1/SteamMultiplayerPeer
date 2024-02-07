@@ -84,7 +84,7 @@ public partial class UI : Control
         Multiplayer.PeerDisconnected += (peer) =>
         {
             RemovePlayer(peer);
-            Rpc(nameof(RefreshPlayerList), new Array(_playerSpawnerNode.GetChildren().Cast<Player>().Select(x => (Variant)x.Name)));
+            Rpc(nameof(RefreshPlayerList), new Array(_playerSpawnerNode.GetChildren().Where(x => x.Name != peer.ToString()/*need to filter it here due to queuefree timing*/).Cast<Player>().Select(x => (Variant)x.Name)));
         };
 
         _inLobby = true;
@@ -118,8 +118,8 @@ public partial class UI : Control
         _playerSpawnerNode.AddChild(playerRef, true);
     }
     private void RemovePlayer(long id)
-    {         
-        Player playerRef = _playerSpawnerNode.GetNode<Player>(id.ToString());
-        playerRef.QueueFree();
+    {
+        Node? childNode = _playerSpawnerNode.GetChildren().FirstOrDefault(x => x.Name == id.ToString());
+        childNode?.QueueFree();
     }
 }
