@@ -91,16 +91,13 @@ public partial class UI : Control
         await this.SteamManager().CreateLobby();
 
     }
-    [Rpc]
+    [Rpc(CallLocal = true)]
     public void RefreshPlayerList(Array<Variant> players)
     {
-        if (Multiplayer.IsServer())
+        _memberVbox.GetChildren().ToList().ForEach(x => x.QueueFree());
+        foreach (var player in players)
         {
-            _memberVbox.GetChildren().ToList().ForEach(x => x.QueueFree());
-            foreach (var player in players)
-            {
-                _memberVbox.AddChild(new Label() { Text = player.ToString(), Name = player.ToString() });
-            }
+            _memberVbox.AddChild(new Label() { Text = player.ToString(), Name = player.ToString() });
         }
     }
 
