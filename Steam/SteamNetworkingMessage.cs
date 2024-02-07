@@ -1,7 +1,7 @@
 ﻿using static Godot.MultiplayerPeer;
 using Steamworks;
 
-namespace SteamMultiplayerPeer.Steam;
+namespace Steam;
 public class SteamNetworkingMessage
 {
     public SteamNetworkingMessage(byte[] data, SteamId sender, TransferModeEnum transferMode, long receiveTime)

@@ -1,12 +1,11 @@
-﻿using Godot;
-using static Godot.MultiplayerPeer;
-using Steamworks.Data;
+﻿﻿using Godot;
 using Steamworks;
+using Steamworks.Data;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System;
 
-namespace SteamMultiplayerPeer.Steam;
+namespace Steam;
 public partial class SteamMultiplayerPeer : MultiplayerPeerExtension
 {
     public enum Mode

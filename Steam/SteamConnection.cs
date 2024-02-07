@@ -1,10 +1,10 @@
 ﻿using Godot;
-using Steamworks.Data;
 using Steamworks;
+using Steamworks.Data;
 using System;
 using System.Collections.Generic;
 
-namespace SteamMultiplayerPeer.Steam;
+namespace Steam;
 public partial class SteamConnection : RefCounted
 {
     public bool IsActive { get; private set; }

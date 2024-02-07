@@ -1,8 +1,79 @@
-[gd_scene load_steps=2 format=3 uid="uid://b27h0j08ndoxw"]
+[gd_scene load_steps=3 format=3 uid="uid://b27h0j08ndoxw"]
 
 [ext_resource type="Script" path="res://Steam/SteamManager.cs" id="1_ngv6v"]
+[ext_resource type="Script" path="res://Example/UI.cs" id="2_tenw6"]
 
 [node name="Startup" type="Node3D"]
 
 [node name="SteamManager" type="Node" parent="."]
 script = ExtResource("1_ngv6v")
+
+[node name="UI" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("2_tenw6")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="UI"]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -20.0
+offset_right = 20.0
+offset_bottom = 40.0
+grow_horizontal = 2
+
+[node name="HostGame" type="Button" parent="UI/VBoxContainer"]
+layout_mode = 2
+text = "Host"
+
+[node name="TextEdit" type="TextEdit" parent="UI/VBoxContainer"]
+custom_minimum_size = Vector2(150, 40)
+layout_mode = 2
+placeholder_text = "Lobby Id"
+
+[node name="JoinGame" type="Button" parent="UI/VBoxContainer"]
+layout_mode = 2
+text = "Join"
+
+[node name="QuitGame" type="Button" parent="UI/VBoxContainer"]
+layout_mode = 2
+text = "Quit
+"
+
+[node name="LobbyVbox" type="VBoxContainer" parent="UI"]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="Label" type="Label" parent="UI/LobbyVbox"]
+layout_mode = 2
+text = "Lobby Information:"
+
+[node name="HBoxContainer" type="HBoxContainer" parent="UI/LobbyVbox"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="UI/LobbyVbox/HBoxContainer"]
+layout_mode = 2
+text = "Lobby Id: "
+
+[node name="LobbyIdLabel" type="TextEdit" parent="UI/LobbyVbox/HBoxContainer"]
+custom_minimum_size = Vector2(200, 50)
+layout_mode = 2
+
+[node name="CurrentMemberLabel" type="Label" parent="UI/LobbyVbox"]
+layout_mode = 2
+text = "CurrentMembers:"
+
+[node name="MemberVbox" type="VBoxContainer" parent="UI/LobbyVbox"]
+layout_mode = 2
+
+[node name="PlayerHolder" type="Node3D" parent="."]
+
+[node name="MultiplayerSpawner" type="MultiplayerSpawner" parent="."]
+_spawnable_scenes = PackedStringArray("res://Example/Player.tscn")
+spawn_path = NodePath("../PlayerHolder")

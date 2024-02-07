@@ -14,7 +14,12 @@ The example project shown above should give a good example on how to start up. A
 1. The Steam Multiplayer Peer package is not yet available on the Godot Asset Library. You will need to download the source code and add it to your project manually. You can find the source code above. I highly recommend paying special attention to the DLL's and the Facepunch Steamworks library. You will need to have the correct DLL's for your platform and the correct version of the Facepunch Steamworks library included with this package. There is no garuntee that another version of either will function with this project
 1. Check the csproj for more specifics on connecting above. 
  
+## FAQ
+
+"It is not working locally"
+- Make sure that you have the Steam client running on your computer. This is required to connect to the Steam servers and create lobbies.
+- You will NEED TO HAVE A SECOND STEAM ACCOUNT RUNNING ON EITHER A SEPARATE COMPUTER OR A SEPARATE INSTANCE OF THE STEAM CLIENT WITH A SEPARATE INSTANCE. This is because the Steam API does not allow you to connect to the same lobby with the same account. This is a limitation of the Steam API, and there is no way around it.
 
 ## License
 
-This Project is Licensed under MIT License. See the [LICENSE](LICENSE) file for more information.
+This Project is Licensed under MIT License. See the [LICENSE](LICENSE.txt) file for more information.
