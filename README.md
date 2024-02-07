@@ -17,4 +17,4 @@ The example project shown above should give a good example on how to start up. A
 
 ## License
 
-This Project is Licensed under MIT License. See the [LICENSE](LICENSE) file for more information.
+This Project is Licensed under MIT License. See the [LICENSE](LICENSE.txt) file for more information.

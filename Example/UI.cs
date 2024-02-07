@@ -31,50 +31,7 @@ public partial class UI : Control
         _joinButton.Pressed += async () => await OnJoinButtonPressed();
         _quitButton.Pressed += OnQuitButtonPressed;
 
-        this.SteamManager().OnLobbySuccessfullyCreated += (lobbyId) =>
-        {
-            _lobbyIdLabel.Text = lobbyId.Id.ToString();
-        };
-
-        this.SteamManager().OnPlayerJoinLobby += (player) =>
-        {
-            Player playerRef = _playerScene.Instantiate<Player>();
-            playerRef.Name = player.Id.Value.ToString();
-            _playerSpawnerNode.AddChild(playerRef);
-        };
-    }
-
-    public override void _Process(double delta)
-    {
-        _hostButton.Disabled = _inLobby;
-        _joinButton.Disabled = string.IsNullOrEmpty(_textEdit.Text) || _inLobby;
-    }
-
-
-    private async Task OnHostButtonPressed()
-    {
-
-        Multiplayer.PeerConnected += (peer) =>
-        {
-            _memberVbox.AddChild(new Label() { Text = peer.ToString(), Name = peer.ToString() });
-        };
-        Multiplayer.PeerDisconnected += (peer) =>
-        {
-            _memberVbox.RemoveChild(_memberVbox.GetNode(peer.ToString()));
-        };
-
-        _inLobby = true;
-        await this.SteamManager().CreateLobby();
-        Steam.SteamMultiplayerPeer steamMultiplayerPeer = new Steam.SteamMultiplayerPeer();
-        steamMultiplayerPeer.CreateHost(25565);
-        Multiplayer.MultiplayerPeer = steamMultiplayerPeer;
-    }
-
-    private async Task OnJoinButtonPressed()
-    {
-        await this.SteamManager().GetMultiplayerLobbies();
-
-        this.SteamManager().OnLobbyRefreshCompleted += (List<Lobby> lobbies) =>
+        this.SteamManager().OnLobbyRefreshCompleted += (List<Lobby> lobbies) => // you would pretty obviously not want to do this exact implementation in a real game, but for the sake of the example
         {
             Lobby? lobby = lobbies.FirstOrDefault(x => x.Id.Value == ulong.Parse(_textEdit.Text));
 
@@ -88,6 +45,7 @@ public partial class UI : Control
                 timer.WaitTime = 1.0d;
                 timer.Timeout += () =>
                 {
+                    _inLobby = true;
                     Steam.SteamMultiplayerPeer peer = new Steam.SteamMultiplayerPeer();
                     peer.CreateClient(this.SteamManager().PlayerSteamID, lobby.Value.Owner.Id);
                     Multiplayer.MultiplayerPeer = peer;
@@ -95,8 +53,49 @@ public partial class UI : Control
                 timer.Start();
 
             }
-            
+
         };
+
+    }
+
+    public override void _Process(double delta)
+    {
+        _hostButton.Disabled = _inLobby;
+        _joinButton.Disabled = string.IsNullOrEmpty(_textEdit.Text) || _inLobby;
+    }
+
+
+    private async Task OnHostButtonPressed()
+    {
+
+        this.SteamManager().OnLobbySuccessfullyCreated += (lobbyId) =>
+        {
+            _lobbyIdLabel.Text = lobbyId.Id.ToString();
+            Steam.SteamMultiplayerPeer steamMultiplayerPeer = new Steam.SteamMultiplayerPeer();
+            steamMultiplayerPeer.CreateHost(25565);
+            Multiplayer.MultiplayerPeer = steamMultiplayerPeer;
+
+            AddPlayer(1);
+        };
+
+        Multiplayer.PeerConnected += (peer) =>
+        {
+            AddPlayer((ulong)peer);
+            _memberVbox.AddChild(new Label() { Text = peer.ToString(), Name = peer.ToString() });
+        };
+        Multiplayer.PeerDisconnected += (peer) =>
+        {
+            _memberVbox.RemoveChild(_memberVbox.GetNode(peer.ToString()));
+        };
+
+        _inLobby = true;
+        await this.SteamManager().CreateLobby();
+
+    }
+
+    private async Task OnJoinButtonPressed()
+    {
+        await this.SteamManager().GetMultiplayerLobbies();
     }
 
     private void OnQuitButtonPressed()
@@ -104,4 +103,10 @@ public partial class UI : Control
         GetTree().Quit();
     }
 
+    private void AddPlayer(ulong id)
+    {
+        Player playerRef = _playerScene.Instantiate<Player>();
+        playerRef.Name = id.ToString();
+        _playerSpawnerNode.AddChild(playerRef, true);
+    }
 }
