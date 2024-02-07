@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 namespace Steam;
 public partial class SteamManager : Node
 {
-    private const uint _steamAppId = 2759680; // replace with your own steam id
+    private const uint _steamAppId = 480; // replace with your own steam id
 
     public event Action<Lobby>? OnLobbySuccessfullyCreated;
     public event Action<Lobby>? OnLobbyGameCreated;
