@@ -107,7 +107,7 @@ public partial class UI : Control
             _memberVbox.GetChildren().ToList().ForEach(x => x.QueueFree());
             foreach (var player in _playerSpawnerNode.GetChildren().Cast<Player>())
             {
-                _memberVbox.AddChild(new Label() { Text = player.ToString(), Name = player.ToString() });
+                _memberVbox.AddChild(new Label() { Text = player.Name.ToString(), Name = player.Name.ToString() });
             }
         }
     }
