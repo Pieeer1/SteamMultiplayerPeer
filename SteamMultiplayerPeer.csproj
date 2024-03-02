@@ -1,28 +1,28 @@
-﻿<Project Sdk="Godot.NET.Sdk/4.2.0">
+﻿<Project Sdk="Godot.NET.Sdk/4.2.1">
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
     <EnableDynamicLoading>true</EnableDynamicLoading>
     <Nullable>enable</Nullable>
   </PropertyGroup>
-    <ItemGroup>
-        <None Include="Facepunch/Facepunch.Steamworks.Posix.dll" />
-        <None Include="Facepunch/Facepunch.Steamworks.Win64.dll" />
-        <None Include="steam_api.dll">
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        </None>
-        <None Include="steam_api64.dll">
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        </None>
-    </ItemGroup>
-    <ItemGroup>
-        <Reference Include="Facepunch.Steamworks.Win64" Condition="$([MSBuild]::IsOSPlatform('Windows'))">
-            <HintPath>./Facepunch/Facepunch.Steamworks.Win64.dll</HintPath>
-        </Reference>
-        <Reference Include="Facepunch.Steamworks.Win64" Condition="$([MSBuild]::IsOSPlatform('Linux'))">
-            <HintPath>./Facepunch/Facepunch.Steamworks.Posix.dll</HintPath>
-        </Reference>
-        <Reference Include="Facepunch.Steamworks.Win64" Condition="$([MSBuild]::IsOSPlatform('OSX'))">
-            <HintPath>./Facepunch/Facepunch.Steamworks.Posix.dll</HintPath>
-        </Reference>
-    </ItemGroup>
+  <ItemGroup>
+    <None Include="Facepunch/Facepunch.Steamworks.Posix.dll" />
+    <None Include="Facepunch/Facepunch.Steamworks.Win64.dll" />
+    <None Include="steam_api.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="steam_api64.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="Facepunch.Steamworks.Win64" Condition="$([MSBuild]::IsOSPlatform('Windows'))">
+      <HintPath>./Facepunch/Facepunch.Steamworks.Win64.dll</HintPath>
+    </Reference>
+    <Reference Include="Facepunch.Steamworks.Win64" Condition="$([MSBuild]::IsOSPlatform('Linux'))">
+      <HintPath>./Facepunch/Facepunch.Steamworks.Posix.dll</HintPath>
+    </Reference>
+    <Reference Include="Facepunch.Steamworks.Win64" Condition="$([MSBuild]::IsOSPlatform('OSX'))">
+      <HintPath>./Facepunch/Facepunch.Steamworks.Posix.dll</HintPath>
+    </Reference>
+  </ItemGroup>
 </Project>
