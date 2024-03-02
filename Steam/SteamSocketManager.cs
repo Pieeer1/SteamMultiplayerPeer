@@ -11,8 +11,6 @@ public class SteamSocketManager : SocketManager
 {
     private Dictionary<Connection, List<SteamNetworkingMessage>> _connectionMessages = new Dictionary<Connection, List<SteamNetworkingMessage>>();
 
-    private int _maxEnqueuedMessages = 1000;
-
     public event Action<(Connection, ConnectionInfo)>? OnConnectionEstablished;
     public event Action<(Connection, ConnectionInfo)>? OnConnectionLost;
     public event Action<(Connection, ConnectionInfo)>? OnConnectionChange;
@@ -44,11 +42,6 @@ public class SteamSocketManager : SocketManager
     public override void OnMessage(Connection connection, NetIdentity identity, IntPtr data, int size, long recvTime, long messageNum, int channel)
     {
         base.OnMessage(connection, identity, data, size, messageNum, recvTime, channel);
-
-        if (_connectionMessages[connection].Count > _maxEnqueuedMessages)
-        {
-            _connectionMessages[connection].RemoveAt(0);
-        }
 
         byte[] managedArray = new byte[size];
         Marshal.Copy(data, managedArray, 0, size);
