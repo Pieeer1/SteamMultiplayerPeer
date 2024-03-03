@@ -14,7 +14,7 @@ public partial class SteamConnection : RefCounted
     public long TickCountSinceLastData { get; private set; }
     public int PeerId { get; set; } = -1;
     public DateTime LastMessageTimeStamp { get; private set; }
-    public List<SteamPacketPeer> PendingRetryPackets { get; private set; } = new List<SteamPacketPeer>();
+    public Queue<SteamPacketPeer> PendingRetryPackets { get; private set; } = new Queue<SteamPacketPeer>();
 
     public struct SetupPeerPayload
     {
@@ -32,15 +32,14 @@ public partial class SteamConnection : RefCounted
     }
     private void AddPacket(SteamPacketPeer packet)
     {
-        PendingRetryPackets.Add(packet);
+        PendingRetryPackets.Enqueue(packet);
     }
     private Error SendPending()
     {
         while (PendingRetryPackets.Count > 0)
         {
-            SteamPacketPeer packet = PendingRetryPackets[0];
+            SteamPacketPeer packet = PendingRetryPackets.Dequeue();
             Error errorCode = RawSend(packet);
-            PendingRetryPackets.RemoveAt(0);
             if (errorCode != Error.Ok)
             {
                 return errorCode;

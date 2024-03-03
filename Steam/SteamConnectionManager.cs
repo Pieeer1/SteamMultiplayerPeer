@@ -12,7 +12,7 @@ public class SteamConnectionManager : ConnectionManager
     public event Action<ConnectionInfo>? OnConnectionEstablished;
     public event Action<ConnectionInfo>? OnConnectionLost;
 
-    private List<SteamNetworkingMessage> _pendingMessages { get; } = new List<SteamNetworkingMessage>();
+    private Queue<SteamNetworkingMessage> _pendingMessages { get; } = new Queue<SteamNetworkingMessage>();
     public override void OnConnectionChanged(ConnectionInfo info)
     {
         base.OnConnectionChanged(info);
@@ -41,20 +41,14 @@ public class SteamConnectionManager : ConnectionManager
         byte[] managedArray = new byte[size];
         Marshal.Copy(data, managedArray, 0, size);
 
-        _pendingMessages.Add(new SteamNetworkingMessage(managedArray, ConnectionInfo.Identity.SteamId, MultiplayerPeer.TransferModeEnum.Reliable, recvTime));
+        _pendingMessages.Enqueue(new SteamNetworkingMessage(managedArray, ConnectionInfo.Identity.SteamId, MultiplayerPeer.TransferModeEnum.Reliable, recvTime));
     }
-    public IEnumerable<SteamNetworkingMessage> GetPendingMessages(int count)
+    public IEnumerable<SteamNetworkingMessage> GetPendingMessages()
     {
-        IEnumerable<SteamNetworkingMessage> messagesToSend = _pendingMessages.Take(count).ToList();
-
-        for (int i = 0; i < count; i++)
+        int maxMessageCount = _pendingMessages.Count;
+        for (int i = 0; i < maxMessageCount; i++)
         {
-            if (_pendingMessages.Any())
-            {
-                _pendingMessages.RemoveAt(0);
-            }
+            yield return _pendingMessages.Dequeue();
         }
-
-        return messagesToSend;
     }
 }
