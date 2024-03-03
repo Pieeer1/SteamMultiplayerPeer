@@ -11,6 +11,7 @@ public partial class Player : Node3D
 
     public override void _Ready()
     {
+        if (!IsMultiplayerAuthority()) { return; }
         _voiceInstance = GetNode<VoiceInstance>("VoiceInstance");
     }
 
