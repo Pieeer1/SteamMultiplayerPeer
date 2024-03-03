@@ -15,6 +15,14 @@ run/main_scene="res://Example/Startup.tscn"
 config/features=PackedStringArray("4.2", "C#", "Forward Plus")
 config/icon="res://icon.svg"
 
+[audio]
+
+driver/enable_input=true
+
 [dotnet]
 
 project/assembly_name="SteamMultiplayerPeer"
+
+[editor_plugins]
+
+enabled=PackedStringArray("res://addons/GodotVoipNet/plugin.cfg")
