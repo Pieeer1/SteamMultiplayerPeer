@@ -17,6 +17,8 @@ public partial class Player : Node3D
 
     public override void _Process(double delta)
     {
+        if (!IsMultiplayerAuthority()) { return; }
+
         if (Input.IsActionPressed("push_to_talk"))
         {
             _voiceInstance.IsRecording = true;
