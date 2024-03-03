@@ -20,8 +20,8 @@ public partial class SteamMultiplayerPeer : MultiplayerPeerExtension
     private SteamConnectionManager? _steamConnectionManager;
     private SteamSocketManager? _steamSocketManager;
 
-    private System.Collections.Generic.Dictionary<int, SteamConnection> _peerIdToConnection = new System.Collections.Generic.Dictionary<int, SteamConnection>();
-    private System.Collections.Generic.Dictionary<ulong, SteamConnection> _connectionsBySteamId = new System.Collections.Generic.Dictionary<ulong, SteamConnection>();
+    private readonly Dictionary<int, SteamConnection> _peerIdToConnection = new Dictionary<int, SteamConnection>();
+    private readonly Dictionary<ulong, SteamConnection> _connectionsBySteamId = new Dictionary<ulong, SteamConnection>();
 
     private int _targetPeer = -1;
     private int _uniqueId = 0;
@@ -30,18 +30,13 @@ public partial class SteamMultiplayerPeer : MultiplayerPeerExtension
     private ConnectionStatus _connectionStatus = ConnectionStatus.Disconnected;
     private TransferModeEnum _transferMode = TransferModeEnum.Reliable;
 
-    private List<SteamPacketPeer> _incomingPackets = new List<SteamPacketPeer>();
+    private readonly Queue<SteamPacketPeer> _incomingPackets = new Queue<SteamPacketPeer>();
     private SteamPacketPeer? _nextReceivedPacket;
 
     private SteamId _steamId;
 
     private int _transferChannel = 0;
     private bool _refuseNewConnections = false;
-
-    public System.Collections.Generic.Dictionary<int, SteamId> PeerIdToSteamIdMap => _peerIdToConnection.ToDictionary(x => x.Key, x => x.Value.SteamIdRaw);
-    public long Ping { get; private set; }
-    private int _pingCounter = 0;
-    private List<long> _pings = new List<long>();
     public Error CreateHost(SteamId playerId)
     {
         _steamId = playerId;
@@ -186,15 +181,12 @@ public partial class SteamMultiplayerPeer : MultiplayerPeerExtension
     }
     public override byte[] _GetPacketScript()
     {
-        if (_incomingPackets.Any())
+        if (_incomingPackets.TryDequeue(out SteamPacketPeer? packet))
         {
-            _nextReceivedPacket = _incomingPackets.First();
-            _incomingPackets.RemoveAt(0);
-
-            return _nextReceivedPacket.Data;
+            return packet.Data;
         }
 
-        return System.Array.Empty<byte>();
+        return [];
     }
 
 
@@ -239,11 +231,12 @@ public partial class SteamMultiplayerPeer : MultiplayerPeerExtension
             _steamConnectionManager.Receive();
         }
 
+        IEnumerable<SteamNetworkingMessage> steamNetworkingMessages = _steamConnectionManager?.GetPendingMessages() ?? [];
+
         foreach (SteamConnection connection in _connectionsBySteamId.Values)
         {
-            IEnumerable<SteamNetworkingMessage> steamNetworkingMessages = (_steamConnectionManager?.GetPendingMessages(255) ??
-                 Enumerable.Empty<SteamNetworkingMessage>()).Union(_steamSocketManager?.ReceiveMessagesOnConnection(connection.Connection, 255) ?? Enumerable.Empty<SteamNetworkingMessage>());
-            foreach (SteamNetworkingMessage message in steamNetworkingMessages)
+            IEnumerable<SteamNetworkingMessage> messagesByConnection = steamNetworkingMessages.Union(_steamSocketManager?.ReceiveMessagesOnConnection(connection.Connection) ?? []);
+            foreach (SteamNetworkingMessage message in messagesByConnection)
             {
                 if (GetPeerIdFromSteamId(message.Sender) != -1)
                 {
@@ -261,8 +254,7 @@ public partial class SteamMultiplayerPeer : MultiplayerPeerExtension
 
     private void ProcessPing(SteamConnection.SetupPeerPayload receive, ulong sender)
     {
-
-        SteamConnection connection = _connectionsBySteamId[sender]; // potentially might have to change to check if it exists first, if not then set the steamid peer
+        SteamConnection connection = _connectionsBySteamId[sender];
 
         if (receive.PeerId != -1)
         {
@@ -294,23 +286,14 @@ public partial class SteamMultiplayerPeer : MultiplayerPeerExtension
         SteamPacketPeer packet = new SteamPacketPeer(message.Data, TransferModeEnum.Reliable);
         packet.SenderSteamId = message.Sender;
 
-        _pings.Add((SteamNetworkingUtils.LocalTimestamp - message.ReceiveTime) / 100); // potentially divide by even more i don't think this is accurate. Gives a good example of latency though.
-        if (_pingCounter++ > 1000)
-        {
-            _pingCounter = 0;
-            Ping = (long)_pings.Average();
-            _pings.Clear();
-        }
-
-
-        _incomingPackets.Add(packet);
+        _incomingPackets.Enqueue(packet);
     }
 
     public override Error _PutPacketScript(byte[] pBuffer)
     {
         if (!_isActive || _connectionStatus != ConnectionStatus.Connected) { return Error.Unconfigured; }
 
-        if (_targetPeer != 0 && !_peerIdToConnection.ContainsKey(Mathf.Abs(_targetPeer))) // CONTINUE HERE // https://github.com/expressobits/steam-multiplayer-peer/blob/main/steam-multiplayer-peer/steam_multiplayer_peer.cpp
+        if (_targetPeer != 0 && !_peerIdToConnection.ContainsKey(Mathf.Abs(_targetPeer)))
         {
             return Error.InvalidParameter;
         }
@@ -365,9 +348,9 @@ public partial class SteamMultiplayerPeer : MultiplayerPeerExtension
 
     private SteamConnection? GetConnectionFromPeer(int peerId)
     {
-        if (_peerIdToConnection.ContainsKey(peerId))
+        if (_peerIdToConnection.TryGetValue(peerId, out SteamConnection? value))
         {
-            return _peerIdToConnection[peerId];
+            return value;
         }
         return null;
     }
@@ -377,9 +360,9 @@ public partial class SteamMultiplayerPeer : MultiplayerPeerExtension
         {
             return _uniqueId;
         }
-        else if (_connectionsBySteamId.ContainsKey(steamId))
+        else if (_connectionsBySteamId.TryGetValue(steamId, out SteamConnection? value))
         {
-            return _connectionsBySteamId[steamId].PeerId;
+            return value.PeerId;
         }
         else
         {
@@ -393,9 +376,11 @@ public partial class SteamMultiplayerPeer : MultiplayerPeerExtension
         {
             throw new InvalidOperationException("Cannot add Self as Peer");
         }
-        SteamConnection connectionData = new SteamConnection();
-        connectionData.Connection = connection;
-        connectionData.SteamIdRaw = steamId;
+        SteamConnection connectionData = new SteamConnection
+        {
+            Connection = connection,
+            SteamIdRaw = steamId
+        };
         _connectionsBySteamId.Add(steamId, connectionData);
     }
 }

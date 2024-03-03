@@ -9,7 +9,7 @@ using System.Linq;
 namespace Steam;
 public class SteamSocketManager : SocketManager
 {
-    private Dictionary<Connection, List<SteamNetworkingMessage>> _connectionMessages = new Dictionary<Connection, List<SteamNetworkingMessage>>();
+    private Dictionary<Connection, Queue<SteamNetworkingMessage>> _connectionMessages = new Dictionary<Connection, Queue<SteamNetworkingMessage>>();
 
     public event Action<(Connection, ConnectionInfo)>? OnConnectionEstablished;
     public event Action<(Connection, ConnectionInfo)>? OnConnectionLost;
@@ -23,7 +23,7 @@ public class SteamSocketManager : SocketManager
     public override void OnConnected(Connection connection, ConnectionInfo info)
     {
         base.OnConnected(connection, info);
-        _connectionMessages.Add(connection, new List<SteamNetworkingMessage>());
+        _connectionMessages.Add(connection, new Queue<SteamNetworkingMessage>());
         OnConnectionEstablished?.Invoke((connection, info));
     }
 
@@ -46,19 +46,15 @@ public class SteamSocketManager : SocketManager
         byte[] managedArray = new byte[size];
         Marshal.Copy(data, managedArray, 0, size);
 
-        _connectionMessages[connection].Add(new SteamNetworkingMessage(managedArray, identity.SteamId, MultiplayerPeer.TransferModeEnum.Reliable, recvTime));
+        _connectionMessages[connection].Enqueue(new SteamNetworkingMessage(managedArray, identity.SteamId, MultiplayerPeer.TransferModeEnum.Reliable, recvTime));
     }
 
-    public IEnumerable<SteamNetworkingMessage> ReceiveMessagesOnConnection(Connection connection, int maxMessageCount)
+    public IEnumerable<SteamNetworkingMessage> ReceiveMessagesOnConnection(Connection connection)
     {
-        IEnumerable<SteamNetworkingMessage> steamNetworkingMessages = _connectionMessages[connection].Take(maxMessageCount).ToList();
-        for (int i = 0; i < maxMessageCount; i++)
+        int messageCount = _connectionMessages[connection].Count;
+        for (int i = 0; i < messageCount; i++)
         {
-            if (_connectionMessages[connection].Any())
-            {
-                _connectionMessages[connection].RemoveAt(0);
-            }
+            yield return _connectionMessages[connection].Dequeue();
         }
-        return steamNetworkingMessages;
     }
 }
