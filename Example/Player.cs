@@ -12,7 +12,17 @@ public partial class Player : Node3D
     public override void _Ready()
     {
         _voiceInstance = GetNode<VoiceInstance>("VoiceInstance");
-        _voiceInstance.IsRecording = true;
-        
+    }
+
+    public override void _Process(double delta)
+    {
+        if (Input.IsActionPressed("push_to_talk"))
+        {
+            _voiceInstance.IsRecording = true;
+        }
+        else
+        {
+            _voiceInstance.IsRecording = false;
+        }
     }
 }
