@@ -8,3 +8,5 @@ script = ExtResource("1_h8r3t")
 
 [node name="VoiceInstance" type="Node" parent="."]
 script = ExtResource("2_sb1m7")
+
+[node name="Camera3D" type="Camera3D" parent="."]
