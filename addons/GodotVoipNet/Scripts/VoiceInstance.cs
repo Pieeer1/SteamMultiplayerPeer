@@ -114,7 +114,7 @@ public partial class VoiceInstance : Node
             _audioStreamPlayer3D.GlobalPosition = position;
         }
         ReceivedVoiceData?.Invoke(this, new VoiceDataEventArgs(data, id));
-        _receiveBuffer = data;
+        _receiveBuffer = [.. data];
     }
 
     private void ProcessVoice()
