@@ -15,7 +15,7 @@ public partial class SteamConnection : RefCounted
     public long TickCountSinceLastData { get; private set; }
     public int PeerId { get; set; } = -1;
     public DateTime LastMessageTimeStamp { get; private set; }
-    public Queue<SteamPacketPeer> PendingRetryPackets { get; private set; } = new Queue<SteamPacketPeer>();
+    //public Queue<SteamPacketPeer> PendingRetryPackets { get; private set; } = new Queue<SteamPacketPeer>();
 
     public struct SetupPeerPayload
     {
@@ -28,26 +28,32 @@ public partial class SteamConnection : RefCounted
 
     public Error Send(SteamPacketPeer packet)
     {
-        AddPacket(packet);
-        return SendPending();
-    }
-    private void AddPacket(SteamPacketPeer packet)
-    {
-        PendingRetryPackets.Enqueue(packet);
-    }
-    private Error SendPending()
-    {
-        while (PendingRetryPackets.Count > 0)
+        Error errorCode = RawSend(packet);
+        if (errorCode != Error.Ok)
         {
-            SteamPacketPeer packet = PendingRetryPackets.Dequeue();
-            Error errorCode = RawSend(packet);
-            if (errorCode != Error.Ok)
-            {
-                return errorCode;
-            }
+            return errorCode;
         }
         return Error.Ok;
+        //AddPacket(packet);
+        //return SendPending();
     }
+    //private void AddPacket(SteamPacketPeer packet)
+    //{
+    //    PendingRetryPackets.Enqueue(packet);
+    //}
+    //private Error SendPending()
+    //{
+    //    while (PendingRetryPackets.Count > 0)
+    //    {
+    //        SteamPacketPeer packet = PendingRetryPackets.Dequeue();
+    //        Error errorCode = RawSend(packet);
+    //        if (errorCode != Error.Ok)
+    //        {
+    //            return errorCode;
+    //        }
+    //    }
+    //    return Error.Ok;
+    //}
 
     private Error RawSend(SteamPacketPeer packet)
     {
