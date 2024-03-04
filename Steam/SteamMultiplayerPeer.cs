@@ -235,6 +235,10 @@ public partial class SteamMultiplayerPeer : MultiplayerPeerExtension
 
         foreach (SteamConnection connection in _connectionsBySteamId.Values)
         {
+            if(_steamId != connection.SteamIdRaw)
+            {
+                continue;
+            }
             IEnumerable<SteamNetworkingMessage> messagesByConnection = steamNetworkingMessages.Union(_steamSocketManager?.ReceiveMessagesOnConnection(connection.Connection) ?? []);
             foreach (SteamNetworkingMessage message in messagesByConnection)
             {
