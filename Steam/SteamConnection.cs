@@ -34,11 +34,7 @@ public partial class SteamConnection : RefCounted
 
     private Error RawSend(SteamPacketPeer packet)
     {
-        GCHandle pinnedArray = GCHandle.Alloc(packet.Data, GCHandleType.Pinned);
-        IntPtr pointer = pinnedArray.AddrOfPinnedObject();
-        Error result = GetErrorFromResult(Connection.SendMessage(pointer, packet.Data.Length, SendType.Reliable));
-        pinnedArray.Free();
-        return result;
+        return GetErrorFromResult(Connection.SendMessage(packet.Data, SendType.Reliable));
     }
 
     private Error GetErrorFromResult(Result result) => result switch
