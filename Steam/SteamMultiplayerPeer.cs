@@ -231,7 +231,7 @@ public partial class SteamMultiplayerPeer : MultiplayerPeerExtension
             _steamConnectionManager.Receive();
         }
 
-        IEnumerable<SteamNetworkingMessage> steamNetworkingMessages = /*_steamConnectionManager?.GetPendingMessages() ??*/ [];
+        IEnumerable<SteamNetworkingMessage> steamNetworkingMessages = _steamConnectionManager?.GetPendingMessages() ?? [];
 
         foreach (SteamConnection connection in _connectionsBySteamId.Values)
         {
