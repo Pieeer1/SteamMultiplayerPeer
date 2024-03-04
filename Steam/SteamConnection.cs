@@ -3,6 +3,7 @@ using Steamworks;
 using Steamworks.Data;
 using System;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
 
 namespace Steam;
 public partial class SteamConnection : RefCounted
@@ -50,7 +51,9 @@ public partial class SteamConnection : RefCounted
 
     private Error RawSend(SteamPacketPeer packet)
     {
-        return GetErrorFromResult(Connection.SendMessage(packet.Data, SendType.Reliable));
+        GCHandle pinnedArray = GCHandle.Alloc(packet.Data, GCHandleType.Pinned);
+        IntPtr pointer = pinnedArray.AddrOfPinnedObject();
+        return GetErrorFromResult(Connection.SendMessage(pointer, packet.Data.Length, SendType.Reliable));
     }
 
     private Error GetErrorFromResult(Result result) => result switch
