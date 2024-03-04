@@ -30,7 +30,7 @@ public partial class VoiceInstance : Node
     [Export]
     public bool ShouldListen { get; set; } = false;
     [Export]
-    public double InputThreshold { get; set; } = 0.005f;
+    public double InputThreshold { get; set; } = 0.01f;
 
     public event EventHandler<VoiceDataEventArgs>? ReceivedVoiceData;
     public event EventHandler<VoiceDataEventArgs>? SentVoiceData;
