@@ -8,13 +8,10 @@ using System.Runtime.InteropServices;
 namespace Steam;
 public partial class SteamConnection : RefCounted
 {
-    public bool IsActive { get; private set; }
     public SteamId SteamIdRaw { get; set; }
     public ulong SteamId => SteamIdRaw.Value;
     public Connection Connection { get; set; }
-    public long TickCountSinceLastData { get; private set; }
     public int PeerId { get; set; } = -1;
-    public DateTime LastMessageTimeStamp { get; private set; }
 
     public struct SetupPeerPayload
     {
