@@ -231,11 +231,11 @@ public partial class SteamMultiplayerPeer : MultiplayerPeerExtension
             _steamConnectionManager.Receive();
         }
 
-        IEnumerable<SteamNetworkingMessage> steamNetworkingMessages = _steamConnectionManager?.GetPendingMessages() ?? [];
+        List<SteamNetworkingMessage> steamNetworkingMessages = _steamConnectionManager?.GetPendingMessages().ToList() ?? [];
 
         foreach (SteamConnection connection in _connectionsBySteamId.Values)
         {
-            IEnumerable<SteamNetworkingMessage> messagesByConnection = steamNetworkingMessages.Union(_steamSocketManager?.ReceiveMessagesOnConnection(connection.Connection) ?? []);
+            List<SteamNetworkingMessage> messagesByConnection = steamNetworkingMessages.Union(_steamSocketManager?.ReceiveMessagesOnConnection(connection.Connection) ?? []).ToList();
             foreach (SteamNetworkingMessage message in messagesByConnection)
             {
                 if (GetPeerIdFromSteamId(message.Sender) != -1)
@@ -309,7 +309,7 @@ public partial class SteamMultiplayerPeer : MultiplayerPeerExtension
         if (_targetPeer == 0)
         {
             Error error = Error.Ok;
-            foreach (SteamConnection connection in _connectionsBySteamId.Values.Where(x => x.SteamIdRaw != _steamId))
+            foreach (SteamConnection connection in _connectionsBySteamId.Values)
             {
                 Error packetSendingError = connection.Send(packet);
 
