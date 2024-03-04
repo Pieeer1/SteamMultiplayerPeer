@@ -309,7 +309,7 @@ public partial class SteamMultiplayerPeer : MultiplayerPeerExtension
         if (_targetPeer == 0)
         {
             Error error = Error.Ok;
-            foreach (SteamConnection connection in _connectionsBySteamId.Values)
+            foreach (SteamConnection connection in _connectionsBySteamId.Values.Where(x => x.SteamIdRaw != _steamId))
             {
                 Error packetSendingError = connection.Send(packet);
 
