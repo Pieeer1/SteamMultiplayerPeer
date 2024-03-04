@@ -53,7 +53,9 @@ public partial class SteamConnection : RefCounted
     {
         GCHandle pinnedArray = GCHandle.Alloc(packet.Data, GCHandleType.Pinned);
         IntPtr pointer = pinnedArray.AddrOfPinnedObject();
-        return GetErrorFromResult(Connection.SendMessage(pointer, packet.Data.Length, SendType.Reliable));
+        Error result = GetErrorFromResult(Connection.SendMessage(pointer, packet.Data.Length, SendType.Reliable));
+        pinnedArray.Free();
+        return result;
     }
 
     private Error GetErrorFromResult(Result result) => result switch
