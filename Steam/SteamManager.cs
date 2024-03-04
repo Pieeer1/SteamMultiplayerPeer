@@ -39,7 +39,7 @@ public partial class SteamManager : Node
     {
         if (SteamClient.IsValid)
         {
-            SteamClient.RunCallbacks();
+            //SteamClient.RunCallbacks();
         }
     }
     public override void _ExitTree()
@@ -137,7 +137,7 @@ public partial class SteamManager : Node
     {
         try
         {
-            SteamClient.Init(_steamAppId, asyncCallbacks: false);
+            SteamClient.Init(_steamAppId, asyncCallbacks: true);
         }
         catch (Exception ex)
         {
