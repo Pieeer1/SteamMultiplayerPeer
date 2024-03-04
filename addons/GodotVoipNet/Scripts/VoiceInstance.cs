@@ -1,5 +1,4 @@
 ﻿using Godot;
-using Godot.Collections;
 using System;
 using System.Linq;
 
@@ -108,7 +107,7 @@ public partial class VoiceInstance : Node
     }
 
     [Rpc(CallLocal = false, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
-    public void Speak(Array<Vector2> data, int id, Vector3 position)
+    public void Speak(Vector2[] data, int id, Vector3 position)
     {
         if (_audioStreamPlayer3D is not null)
         {
@@ -142,8 +141,7 @@ public partial class VoiceInstance : Node
             Vector2[] stereoData = _audioEffectCapture?.GetBuffer(_audioEffectCapture.GetFramesAvailable()) ?? [];
             if (stereoData.Any())
             {
-                var data = new Array<Vector2>();
-                data.Resize(stereoData.Length);
+                var data = new Vector2[stereoData.Length];
 
                 float maxValue = 0.0f;
 
