@@ -1,6 +1,5 @@
 ﻿using Godot;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 
 namespace GodotVoipNet;
@@ -10,8 +9,6 @@ public partial class VoiceInstance : Node
     private AudioEffectCapture _audioEffectCapture = null!;
     private AudioStreamGeneratorPlayback? _playback;
     private Vector2[] _receiveBuffer = [];
-    private Vector2[] _interopReceiveBuffer = [];
-    private const int _interopFrames = 500;
     private bool _previousFrameIsRecording = false;
 
     private AudioStreamPlayer3D? _audioStreamPlayer3D;
@@ -117,7 +114,6 @@ public partial class VoiceInstance : Node
             _audioStreamPlayer3D.GlobalPosition = position;
         }
         ReceivedVoiceData?.Invoke(this, new VoiceDataEventArgs(data, id));
-        _interopReceiveBuffer = _receiveBuffer;
         _receiveBuffer = [.. data];
     }
 
@@ -126,16 +122,7 @@ public partial class VoiceInstance : Node
         int framesAvailable = _playback?.GetFramesAvailable() ?? 0;
         if (framesAvailable < 1) { return; }
 
-
-        Vector2[] _finalReceiverVectors = new Vector2[Math.Min(_interopReceiveBuffer.Length, _receiveBuffer.Length)];
-
-        for (int i = 0; i < Math.Min(_interopReceiveBuffer.Length, _receiveBuffer.Length); i++)
-        {
-            _finalReceiverVectors[i] = _interopReceiveBuffer[i].Lerp(_receiveBuffer[i], 0.5f);
-        }
-
-        _playback?.PushBuffer(_finalReceiverVectors);
-        _interopReceiveBuffer = [];
+        _playback?.PushBuffer(_receiveBuffer);
         _receiveBuffer = [];
     }
 
