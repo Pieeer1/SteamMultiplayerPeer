@@ -2,9 +2,7 @@ name: .NET Build and Godot Test
 
 on:
   push:
-    branches: [ "pipeline-nuget-fixes" ] #temp for testing
-  pull_request:
-    branches: [ "main" ]
+    branches: [ "master" ]
 
 jobs:
   build-and-test:
@@ -59,6 +57,7 @@ jobs:
 
 
       - name: Package nuget
+        if: ${{ !}}
         run: dotnet pack SteamMultiplayerPeer.csproj --configuration Release -o:package /p:PackageVersion=${{ steps.gitversion.outputs.AssemblySemVer }}
 
       - name: Push Package to NuGet.org
