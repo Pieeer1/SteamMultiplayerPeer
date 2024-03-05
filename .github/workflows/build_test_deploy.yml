@@ -59,7 +59,7 @@ jobs:
 
 
       - name: Package nuget
-        run: dotnet pack SteamMultiplayerPeer.sln --configuration release -o:package /p:PackageVersion=${{ steps.gitversion.outputs.AssemblySemVer }}
+        run: dotnet pack SteamMultiplayerPeer.sln -o:package /p:PackageVersion=${{ steps.gitversion.outputs.AssemblySemVer }}
 
       - name: Push Package to NuGet.org
         run: dotnet nuget push ./package/*.nupkg -k ${{ secrets.NUGET_API_KEY }} -s https://api.nuget.org/v3/index.json --skip-duplicate
