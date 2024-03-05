@@ -17,10 +17,16 @@ package manager
 Once the package is installed you will have to add the following to the csproj:
 ```xml
   <ItemGroup>
-    <Reference Include="Facepunch.Steamworks.Win64" Condition="'$(Configuration)' == 'Debug'">
+    <Reference Include="Facepunch.Steamworks.Win64" Condition="'$(Configuration)' == 'Debug' and $([MSBuild]::IsOSPlatform('Windows'))">
       <HintPath>.godot\mono\temp\bin\Debug\Facepunch.Steamworks.Win64.dll</HintPath>
     </Reference>
-    <Reference Include="Facepunch.Steamworks.Win64" Condition="'$(Configuration)' == 'Release'">
+    <Reference Include="Facepunch.Steamworks.Win64" Condition="'$(Configuration)' == 'Release' and $([MSBuild]::IsOSPlatform('Windows'))">
+        <HintPath>.godot\mono\temp\bin\Release\Facepunch.Steamworks.Win64.dll</HintPath>
+    </Reference>
+    <Reference Include="Facepunch.Steamworks.Win64" Condition="'$(Configuration)' == 'Debug' and ($([MSBuild]::IsOSPlatform('Linux')) or $([MSBuild]::IsOSPlatform('OSX')))">
+        <HintPath>.godot\mono\temp\bin\Debug\Facepunch.Steamworks.Win64.dll</HintPath>
+    </Reference>
+    <Reference Include="Facepunch.Steamworks.Win64" Condition="'$(Configuration)' == 'Release' and ($([MSBuild]::IsOSPlatform('Linux')) or $([MSBuild]::IsOSPlatform('OSX')))">
         <HintPath>.godot\mono\temp\bin\Release\Facepunch.Steamworks.Win64.dll</HintPath>
     </Reference>
   </ItemGroup>
@@ -35,7 +41,17 @@ The above snippet will add the Facepunch.Steamworks.Win64.dll to the project. Th
 
 ## Usage
 
-1. Create a SteamManager Node at the root of your tree.		 
+1. Create a SteamManager Reference at the root of your tree. Call Ready:
+
+```csharp
+public SteamManager SteamManager { get; set; } = new SteamManager();
+
+public override void _Ready()
+{
+	SteamManager._Ready();
+}
+
+```
 1. Set the SteamAppId to your AppId from the Steamworks dashboard.
 1. This will start steam, and allow you to use the steam API (shift tab)
 
