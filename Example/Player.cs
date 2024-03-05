@@ -1,7 +1,7 @@
 using Godot;
 using System;
 
-public partial class Player : Node3D
+internal partial class Player : Node3D
 {
 
     public override void _EnterTree()

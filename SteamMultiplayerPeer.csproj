@@ -3,26 +3,41 @@
     <TargetFramework>net8.0</TargetFramework>
     <EnableDynamicLoading>true</EnableDynamicLoading>
     <Nullable>enable</Nullable>
+    <Company>Mason Adams</Company>
+    <Authors>Mason Adams</Authors>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <RepositoryUrl>https://github.com/Pieeer1/SteamMultiplayerPeer</RepositoryUrl>
   </PropertyGroup>
   <ItemGroup>
     <None Include="Facepunch/Facepunch.Steamworks.Posix.dll" />
     <None Include="Facepunch/Facepunch.Steamworks.Win64.dll" />
     <None Include="steam_api.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Pack>true</Pack>
+      <PackagePath>lib/net8.0</PackagePath>
     </None>
     <None Include="steam_api64.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Pack>true</Pack>
+      <PackagePath>lib/net8.0</PackagePath>
     </None>
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Facepunch.Steamworks.Win64" Condition="$([MSBuild]::IsOSPlatform('Windows'))">
       <HintPath>./Facepunch/Facepunch.Steamworks.Win64.dll</HintPath>
+      <Pack>true</Pack>
+      <PackagePath>lib/net8.0</PackagePath>
     </Reference>
     <Reference Include="Facepunch.Steamworks.Win64" Condition="$([MSBuild]::IsOSPlatform('Linux'))">
       <HintPath>./Facepunch/Facepunch.Steamworks.Posix.dll</HintPath>
+      <Pack>true</Pack>
+      <PackagePath>lib/net8.0</PackagePath>
     </Reference>
     <Reference Include="Facepunch.Steamworks.Win64" Condition="$([MSBuild]::IsOSPlatform('OSX'))">
       <HintPath>./Facepunch/Facepunch.Steamworks.Posix.dll</HintPath>
+      <Pack>true</Pack>
+      <PackagePath>lib/net8.0</PackagePath>
     </Reference>
+    <None Include="README.md" Pack="true" PackagePath="\"/>
   </ItemGroup>
 </Project>

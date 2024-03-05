@@ -5,7 +5,7 @@ using Steamworks.Data;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-public partial class UI : Control
+internal partial class UI : Control
 {
     private Button _hostButton = null!;
     private Button _joinButton = null!;
