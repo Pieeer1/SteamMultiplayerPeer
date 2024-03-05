@@ -9,7 +9,8 @@ using System.Threading.Tasks;
 namespace Steam;
 public partial class SteamManager : Node
 {
-    private const uint _steamAppId = 480; // replace with your own steam id
+    [Export]
+    public uint SteamAppId = 480; // replace with your own steam id
 
     public event Action<Lobby>? OnLobbySuccessfullyCreated;
     public event Action<Lobby>? OnLobbyGameCreated;
@@ -34,13 +35,6 @@ public partial class SteamManager : Node
         SteamMatchmaking.OnLobbyMemberLeave += OnLobbyMemberLeave;
         SteamMatchmaking.OnLobbyEntered += OnLobbyEntered;
         SteamFriends.OnGameLobbyJoinRequested += OnGameLobbyJoinRequested;
-    }
-    public override void _Process(double delta)
-    {
-        if (SteamClient.IsValid)
-        {
-            SteamClient.RunCallbacks();
-        }
     }
     public override void _ExitTree()
     {
@@ -137,7 +131,7 @@ public partial class SteamManager : Node
     {
         try
         {
-            SteamClient.Init(_steamAppId, asyncCallbacks: false);
+            SteamClient.Init(SteamAppId, asyncCallbacks: true);
         }
         catch (Exception ex)
         {

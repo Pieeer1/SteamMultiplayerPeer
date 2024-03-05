@@ -6,6 +6,7 @@
     <Company>Mason Adams</Company>
     <Authors>Mason Adams</Authors>
     <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
     <RepositoryUrl>https://github.com/Pieeer1/SteamMultiplayerPeer</RepositoryUrl>
   </PropertyGroup>
   <ItemGroup>
@@ -39,5 +40,6 @@
       <PackagePath>lib/net8.0</PackagePath>
     </Reference>
     <None Include="README.md" Pack="true" PackagePath="\"/>
+    <None Include="LICENSE.txt" Pack="true" PackagePath=""/>
   </ItemGroup>
 </Project>
