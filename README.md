@@ -14,6 +14,20 @@ dotnet
 package manager
 `Install-Package SteamMultiplayerPeer`
 
+Once the package is installed you will have to add the following to the csproj:
+```xml
+  <ItemGroup>
+    <Reference Include="Facepunch.Steamworks.Win64" Condition="'$(Configuration)' == 'Debug'">
+      <HintPath>.godot\mono\temp\bin\Debug\Facepunch.Steamworks.Win64.dll</HintPath>
+    </Reference>
+    <Reference Include="Facepunch.Steamworks.Win64" Condition="'$(Configuration)' == 'Release'">
+        <HintPath>.godot\mono\temp\bin\Release\Facepunch.Steamworks.Win64.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+```
+
+The above snippet will add the Facepunch.Steamworks.Win64.dll to the project. This is the library that is used to connect to the Steam API.
+
 1. You will need to have a Steam account to use the Steamworks API. You can create a Steam account [here](https://store.steampowered.com/join/)
 1. I highly recommend getting your own steam app ID and setting up your own app in the Steamworks dashboard. This will allow you to test your game without interfering with other people's games. You can find the Steamworks dashboard [here](https://partner.steamgames.com/home).
 1. You will need to have the Steam client running on your computer to test the multiplayer. This is because the Steam API is used to connect to the Steam servers and create lobbies. You can download the Steam client [here](https://store.steampowered.com/about/).
