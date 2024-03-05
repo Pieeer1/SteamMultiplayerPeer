@@ -1,0 +1,63 @@
+name: .NET Build and Godot Test
+
+on:
+  push:
+    branches: [ "master" ]
+
+jobs:
+  build-and-test:
+    name: "Build and Test"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          lfs: true
+          fetch-depth: 0
+
+      - name: Install GitVersion
+        uses: gittools/actions/gitversion/setup@v0.9.7
+        with:
+          versionSpec: '5.x'
+
+      - name: Determine Version
+        id:   gitversion # id to later be referenced
+        uses: gittools/actions/gitversion/execute@v0 
+        with:
+          useConfigFile: true
+          configFilePath: .github/workflows/GitVersion.yml
+
+      - name: "Install Godot Mono '4.2.1'"
+        uses: ./.github/actions/godot-install
+        with:
+          godot-version: '4.2.1'
+          godot-mono: true
+          godot-status-version: 'stable'
+          godot-bin-name: 'linux_x86_64'
+          godot-cache-path: '~/godot-linux'
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: "Build and Restore"
+        if: ${{ !cancelled() }}
+        run: |
+          dotnet restore SteamMultiplayerPeer.csproj
+          dotnet build --no-restore SteamMultiplayerPeer.csproj
+
+
+      # - name: "Run Unit Tests" TODO - ADD GDUNIT 4 TESTS
+      #   if: ${{ !cancelled() }}
+      #   timeout-minutes: 5
+      #   env:
+      #     GODOT_BIN: "/home/runner/godot-linux/godot"
+      #   run: |
+      #     $GODOT_BIN --headless --build-solutions --quit-after 20
+      #     xvfb-run --auto-servernum dotnet test GodotVoipNet.csproj --no-build --settings .runsettings-ci
+
+
+      - name: Package nuget
+        run: dotnet pack SteamMultiplayerPeer.csproj --configuration Release -o:package /p:PackageVersion=${{ steps.gitversion.outputs.AssemblySemVer }}
+
+      - name: Push Package to NuGet.org
+        run: dotnet nuget push ./package/*.nupkg -k ${{ secrets.NUGET_API_KEY }} -s https://api.nuget.org/v3/index.json --skip-duplicate
