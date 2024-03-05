@@ -1,0 +1,44 @@
+name: .NET Build and Godot Test
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build-and-test:
+    name: "Build and Test"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          lfs: true
+
+      - name: "Install Godot Mono '4.2.1'"
+        uses: ./.github/actions/godot-install
+        with:
+          godot-version: '4.2.1'
+          godot-mono: true
+          godot-status-version: 'stable'
+          godot-bin-name: 'linux_x86_64'
+          godot-cache-path: '~/godot-linux'
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 7.0.x
+
+      - name: "Build and Restore"
+        if: ${{ !cancelled() }}
+        run: |
+          dotnet restore GodotVoipNet.csproj
+          dotnet build --no-restore GodotVoipNet.csproj
+
+      - name: "Run Unit Tests"
+        if: ${{ !cancelled() }}
+        timeout-minutes: 5
+        env:
+          GODOT_BIN: "/home/runner/godot-linux/godot"
+        run: |
+          $GODOT_BIN --headless --build-solutions --quit-after 20
+          xvfb-run --auto-servernum dotnet test GodotVoipNet.csproj --no-build --settings .runsettings-ci
