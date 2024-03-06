@@ -119,7 +119,9 @@ public partial class VoiceInstance : Node
         }
         ReceivedVoiceData?.Invoke(this, new VoiceDataEventArgs(data, id));
 
-        _delayedReceiveBuffer.Enqueue((data, unixQueuedTime));
+        long difference = (long)MathF.Abs(DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() - unixQueuedTime);
+
+        _delayedReceiveBuffer.Enqueue((data, unixQueuedTime - (difference/4)));
 
         GD.Print($"{_receiveBuffer.FirstOrDefault().X} {_receiveBuffer.FirstOrDefault().Y} {DateTime.UtcNow.Ticks}");
     }
@@ -130,10 +132,10 @@ public partial class VoiceInstance : Node
         if (framesAvailable < 1) { return; }
 
         _delayedReceiveBuffer.TryPeek(out var first);
-        long difference = (long)MathF.Abs(DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() - first.ms);
+
 
         long now = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
-        while (_delayedReceiveBuffer.Any() && _delayedReceiveBuffer.Peek().ms < (now - difference/4))
+        while (_delayedReceiveBuffer.Any() && _delayedReceiveBuffer.Peek().ms < now)
         {
             _receiveBuffer = [.._receiveBuffer, .. _delayedReceiveBuffer.Dequeue().buffer];
         }
