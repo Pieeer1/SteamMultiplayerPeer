@@ -1,0 +1,21 @@
+{
+  "profiles": {
+    "Trouble": {
+      "commandName": "Project"
+    },
+    "Trouble Console": {
+      "commandName": "Executable",
+      "executablePath": "C:\\Program Files (x86)\\Godot\\Godot_v4.2.1-stable_mono_win64\\Godot_v4.2.1-stable_mono_win64_console.exe",
+      "commandLineArgs": "--path. --verbose",
+      "workingDirectory": ".",
+      "nativeDebugging": true
+    },
+    "Trouble Debug": {
+      "commandName": "Executable",
+      "executablePath": "C:\\Program Files (x86)\\Godot\\Godot_v4.2.1-stable_mono_win64\\Godot_v4.2.1-stable_mono_win64.exe",
+      "commandLineArgs": "--path. --verbose",
+      "workingDirectory": "C:\\Users\\Mason\\source\\repos\\SteamMultiplayerPeer\\SteamMultiplayerPeer.Example",
+      "nativeDebugging": true
+    }
+  }
+}
