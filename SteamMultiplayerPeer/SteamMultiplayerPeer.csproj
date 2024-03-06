@@ -1,0 +1,55 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <Company>Mason Adams</Company>
+    <Authors>Mason Adams</Authors>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
+    <RepositoryUrl>https://github.com/Pieeer1/SteamMultiplayerPeer</RepositoryUrl>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Update="LICENSE.txt">
+      <Pack>true</Pack>
+    </None>
+    <None Update="README.md">
+      <PackagePath>\</PackagePath>
+      <Pack>true</Pack>
+    </None>
+    <None Update="steam_api.dll">
+      <PackagePath>lib/net8.0</PackagePath>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Pack>true</Pack>
+    </None>
+    <None Update="steam_api64.dll">
+      <PackagePath>lib/net8.0</PackagePath>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Pack>true</Pack>
+    </None>
+  </ItemGroup>
+    <ItemGroup>
+        <Reference Include="Facepunch.Steamworks.Win64" Condition="$([MSBuild]::IsOSPlatform('Windows'))">
+            <HintPath>./Facepunch/Facepunch.Steamworks.Win64.dll</HintPath>
+            <Pack>true</Pack>
+            <PackagePath>lib/net8.0</PackagePath>
+        </Reference>
+        <Reference Include="Facepunch.Steamworks.Win64" Condition="$([MSBuild]::IsOSPlatform('Linux'))">
+            <HintPath>./Facepunch/Facepunch.Steamworks.Posix.dll</HintPath>
+            <Pack>true</Pack>
+            <PackagePath>lib/net8.0</PackagePath>
+        </Reference>
+        <Reference Include="Facepunch.Steamworks.Win64" Condition="$([MSBuild]::IsOSPlatform('OSX'))">
+            <HintPath>./Facepunch/Facepunch.Steamworks.Posix.dll</HintPath>
+            <Pack>true</Pack>
+            <PackagePath>lib/net8.0</PackagePath>
+        </Reference>
+        <None Include="../README.md" Pack="true" PackagePath="\" />
+        <None Include="../LICENSE.txt" Pack="true" PackagePath="" />
+    </ItemGroup>
+    <ItemGroup>
+      <PackageReference Include="GodotSharp" Version="4.2.1" />
+    </ItemGroup>
+</Project>
