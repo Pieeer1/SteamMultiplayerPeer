@@ -1,5 +1,6 @@
 ﻿using Godot;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace GodotVoipNet;
@@ -9,7 +10,10 @@ public partial class VoiceInstance : Node
     private AudioEffectCapture _audioEffectCapture = null!;
     private AudioStreamGeneratorPlayback? _playback;
     private Vector2[] _receiveBuffer = [];
+    private readonly Queue<(Vector2[] buffer, long ms)> _delayedReceiveBuffer = new Queue<(Vector2[] buffer, long ms)>();
     private bool _previousFrameIsRecording = false;
+
+    private int _unixMsDelay = 1000; // one second for now
 
     private AudioStreamPlayer3D? _audioStreamPlayer3D;
 
@@ -107,14 +111,15 @@ public partial class VoiceInstance : Node
     }
 
     [Rpc(CallLocal = false, TransferMode = MultiplayerPeer.TransferModeEnum.Unreliable)]
-    public void Speak(Vector2[] data, int id, Vector3 position)
+    public void Speak(Vector2[] data, int id, Vector3 position, long unixQueuedTime)
     {
         if (_audioStreamPlayer3D is not null)
         {
             _audioStreamPlayer3D.GlobalPosition = position;
         }
         ReceivedVoiceData?.Invoke(this, new VoiceDataEventArgs(data, id));
-        _receiveBuffer = [.. data];
+
+        _delayedReceiveBuffer.Enqueue((data, unixQueuedTime));
 
         GD.Print($"{_receiveBuffer.FirstOrDefault().X} {_receiveBuffer.FirstOrDefault().Y} {DateTime.UtcNow.Ticks}");
     }
@@ -123,6 +128,11 @@ public partial class VoiceInstance : Node
     {
         int framesAvailable = _playback?.GetFramesAvailable() ?? 0;
         if (framesAvailable < 1) { return; }
+
+        while (_delayedReceiveBuffer.Any() && _delayedReceiveBuffer.Peek().ms < DateTimeOffset.UtcNow.ToUnixTimeMilliseconds())
+        {
+            _receiveBuffer = [.. _receiveBuffer, .. _delayedReceiveBuffer.Dequeue().buffer];
+        }
 
         _playback?.PushBuffer(_receiveBuffer);
         _receiveBuffer = [];
@@ -159,7 +169,7 @@ public partial class VoiceInstance : Node
                 }
                 if (ShouldListen)
                 {
-                    Speak(data, Multiplayer.GetUniqueId(), GetParent<Node3D>().GlobalPosition);
+                    Speak(data, Multiplayer.GetUniqueId(), GetParent<Node3D>().GlobalPosition, DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() + _unixMsDelay);
                 }
                 Rpc(nameof(Speak), [data, Multiplayer.GetUniqueId(), GetParent<Node3D>().GlobalPosition]);
                 SentVoiceData?.Invoke(this, new VoiceDataEventArgs(data, Multiplayer.GetUniqueId()));
