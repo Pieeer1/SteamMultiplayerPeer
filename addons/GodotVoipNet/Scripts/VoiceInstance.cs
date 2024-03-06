@@ -115,6 +115,8 @@ public partial class VoiceInstance : Node
         }
         ReceivedVoiceData?.Invoke(this, new VoiceDataEventArgs(data, id));
         _receiveBuffer = [.. data];
+
+        GD.Print(_receiveBuffer.ToString());
     }
 
     private void ProcessVoice()
