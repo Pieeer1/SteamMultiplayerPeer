@@ -129,8 +129,11 @@ public partial class VoiceInstance : Node
         int framesAvailable = _playback?.GetFramesAvailable() ?? 0;
         if (framesAvailable < 1) { return; }
 
+        _delayedReceiveBuffer.TryPeek(out var first);
+        long difference = (long)MathF.Abs(DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() - first.ms);
+
         long now = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
-        while (_delayedReceiveBuffer.Any() && _delayedReceiveBuffer.Peek().ms < now)
+        while (_delayedReceiveBuffer.Any() && _delayedReceiveBuffer.Peek().ms < (now - difference/4))
         {
             _receiveBuffer = [.._receiveBuffer, .. _delayedReceiveBuffer.Dequeue().buffer];
         }
