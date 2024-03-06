@@ -13,7 +13,7 @@ public partial class VoiceInstance : Node
     private readonly Queue<(Vector2[] buffer, long ms)> _delayedReceiveBuffer = new Queue<(Vector2[] buffer, long ms)>();
     private bool _previousFrameIsRecording = false;
 
-    private int _unixMsDelay = 1000; // one second for now
+    private int _unixMsDelay = 100; // one tenth hudnsecond for now
 
     private AudioStreamPlayer3D? _audioStreamPlayer3D;
 
@@ -119,11 +119,7 @@ public partial class VoiceInstance : Node
         }
         ReceivedVoiceData?.Invoke(this, new VoiceDataEventArgs(data, id));
 
-        long now = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
-        long hostTime = unixQueuedTime - _unixMsDelay;
-        long difference = Math.Abs(now - hostTime);
-
-        _delayedReceiveBuffer.Enqueue((data, unixQueuedTime-difference+_unixMsDelay));
+        _delayedReceiveBuffer.Enqueue((data, unixQueuedTime));
 
         GD.Print($"{_receiveBuffer.FirstOrDefault().X} {_receiveBuffer.FirstOrDefault().Y} {DateTime.UtcNow.Ticks}");
     }
