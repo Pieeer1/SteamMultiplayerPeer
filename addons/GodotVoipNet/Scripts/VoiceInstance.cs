@@ -119,9 +119,7 @@ public partial class VoiceInstance : Node
         }
         ReceivedVoiceData?.Invoke(this, new VoiceDataEventArgs(data, id));
 
-        long difference = (long)MathF.Abs(DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() - unixQueuedTime);
-
-        _delayedReceiveBuffer.Enqueue((data, unixQueuedTime - (difference/2)));
+        _delayedReceiveBuffer.Enqueue((data, unixQueuedTime));
 
         GD.Print($"{_receiveBuffer.FirstOrDefault().X} {_receiveBuffer.FirstOrDefault().Y} {DateTime.UtcNow.Ticks}");
     }
@@ -130,9 +128,6 @@ public partial class VoiceInstance : Node
     {
         int framesAvailable = _playback?.GetFramesAvailable() ?? 0;
         if (framesAvailable < 1) { return; }
-
-        _delayedReceiveBuffer.TryPeek(out var first);
-
 
         long now = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
         while (_delayedReceiveBuffer.Any() && _delayedReceiveBuffer.Peek().ms < now)
