@@ -116,7 +116,7 @@ public partial class VoiceInstance : Node
         ReceivedVoiceData?.Invoke(this, new VoiceDataEventArgs(data, id));
         _receiveBuffer = [.. data];
 
-        GD.Print(_receiveBuffer.ToString());
+        GD.Print($"{_receiveBuffer.FirstOrDefault().X} {_receiveBuffer.FirstOrDefault().Y} {DateTime.UtcNow.Ticks}");
     }
 
     private void ProcessVoice()
