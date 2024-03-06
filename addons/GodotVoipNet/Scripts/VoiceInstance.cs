@@ -30,7 +30,7 @@ public partial class VoiceInstance : Node
     [Export]
     public bool ShouldListen { get; set; } = false;
     [Export]
-    public double InputThreshold { get; set; } = 0.1f;
+    public double InputThreshold { get; set; } = 0.005f;
 
     public event EventHandler<VoiceDataEventArgs>? ReceivedVoiceData;
     public event EventHandler<VoiceDataEventArgs>? SentVoiceData;
@@ -106,7 +106,7 @@ public partial class VoiceInstance : Node
         _playback = _audioStreamPlayer3D.GetStreamPlayback() as AudioStreamGeneratorPlayback;
     }
 
-    [Rpc(CallLocal = false, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
+    [Rpc(CallLocal = false, TransferMode = MultiplayerPeer.TransferModeEnum.Unreliable)]
     public void Speak(Vector2[] data, int id, Vector3 position)
     {
         if (_audioStreamPlayer3D is not null)

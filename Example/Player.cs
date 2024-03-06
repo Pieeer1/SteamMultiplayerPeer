@@ -13,6 +13,7 @@ public partial class Player : Node3D
     {
         if (!IsMultiplayerAuthority()) { return; }
         _voiceInstance = GetNode<VoiceInstance>("VoiceInstance");
+        _voiceInstance.ShouldListen = true;
     }
 
     public override void _Process(double delta)

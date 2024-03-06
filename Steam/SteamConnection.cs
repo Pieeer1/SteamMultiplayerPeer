@@ -34,8 +34,15 @@ public partial class SteamConnection : RefCounted
 
     private Error RawSend(SteamPacketPeer packet)
     {
-        return GetErrorFromResult(Connection.SendMessage(packet.Data, SendType.Reliable));
+        return GetErrorFromResult(Connection.SendMessage(packet.Data, GetSendTypeFromTransferMode(packet.TransferMode)));
     }
+
+    private SendType GetSendTypeFromTransferMode(MultiplayerPeer.TransferModeEnum transferMode) => transferMode switch
+    {
+        MultiplayerPeer.TransferModeEnum.Reliable => SendType.Reliable,
+        MultiplayerPeer.TransferModeEnum.Unreliable => SendType.Unreliable, // currently no support for ordered unreliable. Just send as reliable
+        _ => SendType.Reliable
+    };
 
     private Error GetErrorFromResult(Result result) => result switch
     {

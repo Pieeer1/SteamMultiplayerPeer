@@ -283,7 +283,7 @@ public partial class SteamMultiplayerPeer : MultiplayerPeerExtension
 
     private void ProcessMesssage(SteamNetworkingMessage message)
     {
-        SteamPacketPeer packet = new SteamPacketPeer(message.Data, TransferModeEnum.Reliable);
+        SteamPacketPeer packet = new SteamPacketPeer(message.Data, message.TransferMode);
         packet.SenderSteamId = message.Sender;
 
         _incomingPackets.Enqueue(packet);
