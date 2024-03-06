@@ -122,9 +122,8 @@ public partial class VoiceInstance : Node
         long now = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
         long hostTime = unixQueuedTime - _unixMsDelay;
         long difference = Math.Abs(now - hostTime);
-        long hostTimeMs = hostTime + difference;
 
-        _delayedReceiveBuffer.Enqueue((data, hostTimeMs));
+        _delayedReceiveBuffer.Enqueue((data, unixQueuedTime-difference));
 
         GD.Print($"{_receiveBuffer.FirstOrDefault().X} {_receiveBuffer.FirstOrDefault().Y} {DateTime.UtcNow.Ticks}");
     }
