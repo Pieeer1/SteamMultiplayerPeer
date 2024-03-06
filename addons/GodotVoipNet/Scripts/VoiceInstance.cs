@@ -111,7 +111,7 @@ public partial class VoiceInstance : Node
     }
 
     [Rpc(CallLocal = false, TransferMode = MultiplayerPeer.TransferModeEnum.Unreliable)]
-    public void Speak(Vector2[] data, int id, Vector3 position, long unixQueuedTime)
+    public void Speak(Vector2[] data, int id, Vector3 position)
     {
         if (_audioStreamPlayer3D is not null)
         {
@@ -119,7 +119,7 @@ public partial class VoiceInstance : Node
         }
         ReceivedVoiceData?.Invoke(this, new VoiceDataEventArgs(data, id));
 
-        _delayedReceiveBuffer.Enqueue((data, unixQueuedTime));
+        _delayedReceiveBuffer.Enqueue((data, DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() + _unixMsDelay));
 
         GD.Print($"{_receiveBuffer.FirstOrDefault().X} {_receiveBuffer.FirstOrDefault().Y} {DateTime.UtcNow.Ticks}");
     }
@@ -133,7 +133,7 @@ public partial class VoiceInstance : Node
 
         while (_delayedReceiveBuffer.Any() && _delayedReceiveBuffer.Peek().ms < now)
         {
-            _receiveBuffer = [.. _delayedReceiveBuffer.Dequeue().buffer];
+            _receiveBuffer = [.._receiveBuffer, .. _delayedReceiveBuffer.Dequeue().buffer];
         }
 
         _playback?.PushBuffer(_receiveBuffer);
@@ -171,9 +171,9 @@ public partial class VoiceInstance : Node
                 }
                 if (ShouldListen)
                 {
-                    Speak(data, Multiplayer.GetUniqueId(), GetParent<Node3D>().GlobalPosition, DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() + _unixMsDelay);
+                    Speak(data, Multiplayer.GetUniqueId(), GetParent<Node3D>().GlobalPosition);
                 }
-                Rpc(nameof(Speak), [data, Multiplayer.GetUniqueId(), GetParent<Node3D>().GlobalPosition, DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() + _unixMsDelay]);
+                Rpc(nameof(Speak), [data, Multiplayer.GetUniqueId(), GetParent<Node3D>().GlobalPosition]);
                 SentVoiceData?.Invoke(this, new VoiceDataEventArgs(data, Multiplayer.GetUniqueId()));
             }
         }
