@@ -1,12 +1,8 @@
-[gd_scene load_steps=3 format=3 uid="uid://b27h0j08ndoxw"]
+[gd_scene load_steps=2 format=3 uid="uid://b27h0j08ndoxw"]
 
-[ext_resource type="Script" path="res://Steam/SteamManager.cs" id="1_ngv6v"]
 [ext_resource type="Script" path="res://Example/UI.cs" id="2_tenw6"]
 
 [node name="Startup" type="Node3D"]
-
-[node name="SteamManager" type="Node" parent="."]
-script = ExtResource("1_ngv6v")
 
 [node name="UI" type="Control" parent="."]
 layout_mode = 3
