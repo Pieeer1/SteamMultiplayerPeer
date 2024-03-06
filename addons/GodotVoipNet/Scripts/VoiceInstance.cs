@@ -13,7 +13,7 @@ public partial class VoiceInstance : Node
     private readonly Queue<(Vector2[] buffer, long ms)> _delayedReceiveBuffer = new Queue<(Vector2[] buffer, long ms)>();
     private bool _previousFrameIsRecording = false;
 
-    private int _unixMsDelay = 1000; // one second for now
+    private int _unixMsDelay = 100; // one second for now
 
     private AudioStreamPlayer3D? _audioStreamPlayer3D;
 
@@ -129,7 +129,9 @@ public partial class VoiceInstance : Node
         int framesAvailable = _playback?.GetFramesAvailable() ?? 0;
         if (framesAvailable < 1) { return; }
 
-        while (_delayedReceiveBuffer.Any() && _delayedReceiveBuffer.Peek().ms < DateTimeOffset.UtcNow.ToUnixTimeMilliseconds())
+        long now = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+
+        while (_delayedReceiveBuffer.Any() && _delayedReceiveBuffer.Peek().ms < now)
         {
             _receiveBuffer = [.. _delayedReceiveBuffer.Dequeue().buffer];
         }
