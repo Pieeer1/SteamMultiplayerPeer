@@ -131,7 +131,7 @@ public partial class VoiceInstance : Node
 
         while (_delayedReceiveBuffer.Any() && _delayedReceiveBuffer.Peek().ms < DateTimeOffset.UtcNow.ToUnixTimeMilliseconds())
         {
-            _receiveBuffer = [.. _receiveBuffer, .. _delayedReceiveBuffer.Dequeue().buffer];
+            _receiveBuffer = [.. _delayedReceiveBuffer.Dequeue().buffer];
         }
 
         _playback?.PushBuffer(_receiveBuffer);
