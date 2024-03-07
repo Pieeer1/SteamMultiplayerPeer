@@ -110,7 +110,7 @@ public partial class VoiceInstance : Node
         _playback = _audioStreamPlayer3D.GetStreamPlayback() as AudioStreamGeneratorPlayback;
     }
 
-    [Rpc(CallLocal = false, TransferMode = MultiplayerPeer.TransferModeEnum.Unreliable)]
+    [Rpc(CallLocal = false, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
     public void Speak(Vector2[] data, int id, Vector3 position, long delay)
     {
         if (_audioStreamPlayer3D is not null)
@@ -119,7 +119,7 @@ public partial class VoiceInstance : Node
         }
         ReceivedVoiceData?.Invoke(this, new VoiceDataEventArgs(data, id));
 
-        _delayedReceiveBuffer.Enqueue((data, DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() + delay));
+        _delayedReceiveBuffer.Enqueue((data, DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() + delay + _unixMsDelay));
     }
 
     private void ProcessVoice()
