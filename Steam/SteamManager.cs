@@ -19,6 +19,7 @@ public partial class SteamManager : Node
 
     public string PlayerName => SteamClient.Name;
     public SteamId PlayerSteamID => SteamClient.SteamId;
+    public Lobby ActiveLobby => _hostedLobby;
     public bool IsHost { get; private set; }
 
     private List<Lobby> _availableLobbies = new List<Lobby>();
@@ -26,6 +27,11 @@ public partial class SteamManager : Node
     public override void _Ready()
     {
         InstantiateSteam();
+
+        SteamNetworking.OnP2PSessionRequest = (steamid) =>
+        {
+            SteamNetworking.AcceptP2PSessionWithUser(steamid);
+        };
 
         SteamMatchmaking.OnLobbyGameCreated += OnLobbyGameCreatedWithSteamId;
         SteamMatchmaking.OnLobbyCreated += OnLobbyCreated;

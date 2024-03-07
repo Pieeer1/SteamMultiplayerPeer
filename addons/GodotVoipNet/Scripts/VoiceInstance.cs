@@ -1,4 +1,7 @@
 ﻿using Godot;
+using Steam;
+using SteamMultiplayerPeer.Example;
+using Steamworks;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -55,6 +58,16 @@ public partial class VoiceInstance : Node
         {
             _voiceMic.GlobalPosition = GetParent<Node3D>().GlobalPosition;
         }
+
+        while (SteamNetworking.IsP2PPacketAvailable())
+        {
+            var packet = SteamNetworking.ReadP2PPacket();
+            if(packet.HasValue)
+            {
+                VoiceData voiceData = packet.Value.Data.ToStruct<VoiceData>();
+                Speak(voiceData.Data, voiceData.Id, voiceData.GlobalPosition);
+            }
+        }
     }
 
     private void CreateMic()
@@ -110,8 +123,7 @@ public partial class VoiceInstance : Node
         _playback = _audioStreamPlayer3D.GetStreamPlayback() as AudioStreamGeneratorPlayback;
     }
 
-    [Rpc(CallLocal = false, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
-    public void Speak(Vector2[] data, int id, Vector3 position, long delay)
+    public void Speak(Vector2[] data, int id, Vector3 position)
     {
         if (_audioStreamPlayer3D is not null)
         {
@@ -119,7 +131,7 @@ public partial class VoiceInstance : Node
         }
         ReceivedVoiceData?.Invoke(this, new VoiceDataEventArgs(data, id));
 
-        _delayedReceiveBuffer.Enqueue((data, delay));
+        _receiveBuffer = [.. data];
     }
 
     private void ProcessVoice()
@@ -127,11 +139,6 @@ public partial class VoiceInstance : Node
         int framesAvailable = _playback?.GetFramesAvailable() ?? 0;
         if (framesAvailable < 1) { return; }
 
-        long now = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
-        while (_delayedReceiveBuffer.Any() && _delayedReceiveBuffer.Peek().ms < now)
-        {
-            _receiveBuffer = [.._receiveBuffer, .. _delayedReceiveBuffer.Dequeue().buffer];
-        }
 
         _playback?.PushBuffer(_receiveBuffer);
         _receiveBuffer = [];
@@ -168,12 +175,24 @@ public partial class VoiceInstance : Node
                 }
                 if (ShouldListen)
                 {
-                    Speak(data, Multiplayer.GetUniqueId(), GetParent<Node3D>().GlobalPosition, 0);
+                    Speak(data, Multiplayer.GetUniqueId(), GetParent<Node3D>().GlobalPosition);
                 }
-                Rpc(nameof(Speak), [data, Multiplayer.GetUniqueId(), GetParent<Node3D>().GlobalPosition, DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()]);
+
+                foreach (Friend friend in this.SteamManager().ActiveLobby.Members.Where(x => !x.IsMe))
+                {
+                    SteamNetworking.SendP2PPacket(friend.Id, new VoiceData(data, Multiplayer.GetUniqueId(), GetParent<Node3D>().GlobalPosition).ToBytes(), sendType: P2PSend.Reliable);
+                }
+
                 SentVoiceData?.Invoke(this, new VoiceDataEventArgs(data, Multiplayer.GetUniqueId()));
             }
         }
         _previousFrameIsRecording = IsRecording;
+    }
+
+    private struct VoiceData(Vector2[] data, int id, Vector3 globalPosition)
+    {
+        public Vector2[] Data { get; } = data;
+        public int Id { get; } = id;
+        public Vector3 GlobalPosition { get; set; } = globalPosition;
     }
 }
