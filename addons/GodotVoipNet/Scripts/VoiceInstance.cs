@@ -121,7 +121,6 @@ public partial class VoiceInstance : Node
 
         _delayedReceiveBuffer.Enqueue((data, delay));
     }
-    private long _lastProcessedTime = 0;
     private void ProcessVoice()
     {
         int framesAvailable = _playback?.GetFramesAvailable() ?? 0;
@@ -129,19 +128,17 @@ public partial class VoiceInstance : Node
 
         long now = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
 
-        long unixMsConversion = 1000;
+        long unixMsConversion = 100;
 
         now = now % unixMsConversion;
 
-        while (_delayedReceiveBuffer.Any() && (last4Ms() < now || overflowShouldBeHandled()))
+        while (_delayedReceiveBuffer.Any() && last4Ms() < now)
         {
             _receiveBuffer = [.._receiveBuffer, .. _delayedReceiveBuffer.Dequeue().buffer];
         }
-        _lastProcessedTime = now;
 
         _playback?.PushBuffer(_receiveBuffer);
         _receiveBuffer = [];
-        bool overflowShouldBeHandled() => (now < _lastProcessedTime && last4Ms() > _lastProcessedTime);
         long last4Ms() => _delayedReceiveBuffer.Peek().ms % unixMsConversion;
     }
 
