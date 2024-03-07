@@ -13,8 +13,8 @@ public partial class VoiceInstance : Node
     private Vector2[] _receiveBuffer = [];
     private bool _previousFrameIsRecording = false;
 
-    private bool _isAlreadyListening = false;
     private Vector2[] _sendingBuffer = [];
+    private Vector2[] _extraSendingBuffer = []; //TODO - SET TO 2D ARRAY SINCE THE SPLIT IS NOT WORKING, AND THE AUDIO CANNOT BE HEARD. COME BACK 3/7
 
     private int _unixMsDelay = 100; // one tenth hudnsecond for now
 
@@ -145,18 +145,17 @@ public partial class VoiceInstance : Node
             {
                 CreateMic();
             }
-            if (!_isAlreadyListening)
+
+            if (!_previousFrameIsRecording)
             {
-                _isAlreadyListening = true;
-
-                Task.Delay(TimeSpan.FromSeconds(0.1)).ContinueWith(o =>
-                {
-                    _sendingBuffer = _audioEffectCapture?.GetBuffer(_audioEffectCapture.GetFramesAvailable()) ?? [];
-                    _isAlreadyListening = false;
-                    _audioEffectCapture?.ClearBuffer();
-
-                }); 
+                _audioEffectCapture?.ClearBuffer();
             }
+
+            _extraSendingBuffer = [.. _extraSendingBuffer, .._audioEffectCapture?.GetBuffer(_audioEffectCapture?.GetFramesAvailable() ?? 0) ?? []]; // not working, look into
+
+            StartBatchingTimer();
+
+
             if (_sendingBuffer.Any())
             {
                 float maxValue = 0.0f;
@@ -172,6 +171,7 @@ public partial class VoiceInstance : Node
                 }
                 if (maxValue < InputThreshold)
                 {
+                    _sendingBuffer = [];
                     return;
                 }
                 if (ShouldListen)
@@ -186,10 +186,20 @@ public partial class VoiceInstance : Node
                 _sendingBuffer = [];
             }
         }
-        else 
-        {
-            _audioEffectCapture?.ClearBuffer();
-        }
         _previousFrameIsRecording = IsRecording;
+
+        void StartBatchingTimer()
+        {
+            Task.Delay(TimeSpan.FromMilliseconds(250)).ContinueWith(o =>
+            {
+                _sendingBuffer = [.. _extraSendingBuffer];
+                _extraSendingBuffer = [];
+                _audioEffectCapture?.ClearBuffer();
+                if (IsRecording)
+                {
+                    StartBatchingTimer();
+                }
+            });
+        }
     }
 }
