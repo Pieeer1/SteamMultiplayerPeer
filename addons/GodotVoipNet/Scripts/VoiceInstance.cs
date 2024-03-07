@@ -128,18 +128,14 @@ public partial class VoiceInstance : Node
         if (framesAvailable < 1) { return; }
 
         long now = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+
         long unixMsConversion = 1000;
 
-        //get last 4 digit of the current time
         now = now % unixMsConversion;
-        if(_delayedReceiveBuffer.Any())
-        {
-            GD.Print($"{now} | {last4Ms()}");
-        }
-        //get last 4 digits of the time of the first element in the queue
+
         while (_delayedReceiveBuffer.Any() && (last4Ms() < now || overflowShouldBeHandled()))
         {
-            _receiveBuffer = [.. _receiveBuffer, .. _delayedReceiveBuffer.Dequeue().buffer];
+            _receiveBuffer = [.. _delayedReceiveBuffer.Dequeue().buffer];
         }
         _lastProcessedTime = now;
 
