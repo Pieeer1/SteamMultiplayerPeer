@@ -13,7 +13,7 @@ internal static class SteamExtensions
         try
         {
             ptr = Marshal.AllocHGlobal(size);
-            Marshal.StructureToPtr(t, ptr, true);
+            Marshal.StructureToPtr(t, ptr, false);
             Marshal.Copy(ptr, arr, 0, size);
         }
         finally
