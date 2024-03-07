@@ -119,9 +119,7 @@ public partial class VoiceInstance : Node
         }
         ReceivedVoiceData?.Invoke(this, new VoiceDataEventArgs(data, id));
 
-        _delayedReceiveBuffer.Enqueue((data, unixQueuedTime));
-
-        GD.Print($"{_receiveBuffer.FirstOrDefault().X} {_receiveBuffer.FirstOrDefault().Y} {DateTime.UtcNow.Ticks}");
+        _delayedReceiveBuffer.Enqueue((data, DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() + unixQueuedTime));
     }
 
     private void ProcessVoice()
@@ -139,6 +137,7 @@ public partial class VoiceInstance : Node
         _receiveBuffer = [];
     }
 
+    private long _lastSent = 0;
     private void ProcessMic()
     {
         if (IsRecording)
@@ -172,7 +171,9 @@ public partial class VoiceInstance : Node
                 {
                     Speak(data, Multiplayer.GetUniqueId(), GetParent<Node3D>().GlobalPosition, DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() + _unixMsDelay);
                 }
-                Rpc(nameof(Speak), [data, Multiplayer.GetUniqueId(), GetParent<Node3D>().GlobalPosition, DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() + _unixMsDelay]);
+                long clientCallTime = Math.Min(DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() - _lastSent, _unixMsDelay) + _unixMsDelay;
+                Rpc(nameof(Speak), [data, Multiplayer.GetUniqueId(), GetParent<Node3D>().GlobalPosition, clientCallTime]);
+                _lastSent = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
                 SentVoiceData?.Invoke(this, new VoiceDataEventArgs(data, Multiplayer.GetUniqueId()));
             }
         }
