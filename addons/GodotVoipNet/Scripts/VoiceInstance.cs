@@ -13,7 +13,7 @@ public partial class VoiceInstance : Node
     private readonly Queue<(Vector2[] buffer, long ms)> _delayedReceiveBuffer = new Queue<(Vector2[] buffer, long ms)>();
     private bool _previousFrameIsRecording = false;
 
-    private int _unixMsDelay = 100; // one tenth hudnsecond for now
+    private int _unixMsDelay = 1000; // one tenth hudnsecond for now
 
     private AudioStreamPlayer3D? _audioStreamPlayer3D;
 
