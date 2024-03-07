@@ -10,7 +10,7 @@ public partial class VoiceInstance : Node
     private AudioEffectCapture _audioEffectCapture = null!;
     private AudioStreamGeneratorPlayback? _playback;
     private Vector2[] _receiveBuffer = [];
-    private readonly Queue<(Vector2[] buffer, long ms)> _delayedReceiveBuffer = new Queue<(Vector2[] buffer, long ms)>();
+    private Queue<(Vector2[] buffer, long ms)> _delayedReceiveBuffer = new Queue<(Vector2[] buffer, long ms)>();
     private bool _previousFrameIsRecording = false;
 
     private int _unixMsDelay = 100; // one tenth hudnsecond for now
@@ -129,12 +129,29 @@ public partial class VoiceInstance : Node
 
         long now = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
 
-        long unixMsConversion = 100;
+        long unixMsConversion = 1000;
 
         now = now % unixMsConversion;
 
+        if (_delayedReceiveBuffer.Any())
+        {
+            GD.Print($"{last4Ms()} | {now}");
+        }
+
         while (_delayedReceiveBuffer.Any() && (last4Ms() < now || overflowShouldBeHandled()))
         {
+            if (overflowShouldBeHandled())
+            {
+                long initialTime = _delayedReceiveBuffer.Peek().ms;
+                long increaseBy = unixMsConversion - initialTime;
+                Queue <(Vector2[] buffer, long ms)> tempQueue = new Queue<(Vector2[] buffer, long ms)>();
+                foreach (var bufferMS in _delayedReceiveBuffer)
+                {
+                    long increasedAmount = (bufferMS.ms + increaseBy) >= 1000 ? (bufferMS.ms - initialTime) : (bufferMS.ms + increaseBy);
+                    tempQueue.Enqueue((bufferMS.buffer, increasedAmount));
+                }
+                _delayedReceiveBuffer = tempQueue;
+            }
             _receiveBuffer = [.._receiveBuffer, .. _delayedReceiveBuffer.Dequeue().buffer];
         }
         _lastProcessedTime = now;
