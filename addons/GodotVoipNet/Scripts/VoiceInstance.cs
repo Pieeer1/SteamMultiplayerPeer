@@ -165,6 +165,7 @@ public partial class VoiceInstance : Node
                 }
                 if (maxValue < InputThreshold)
                 {
+                    _lastNow = 0;
                     return;
                 }
                 if (ShouldListen)
@@ -173,10 +174,15 @@ public partial class VoiceInstance : Node
                 }
                 long now = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
                 long difference = _lastNow != 0 ? now - _lastNow : 0;
+                GD.Print(difference.ToString());
                 Rpc(nameof(Speak), [data, Multiplayer.GetUniqueId(), GetParent<Node3D>().GlobalPosition, difference]);
                 _lastNow = now;
                 SentVoiceData?.Invoke(this, new VoiceDataEventArgs(data, Multiplayer.GetUniqueId()));
             }
+        }
+        else
+        {
+            _lastNow = 0;
         }
         _previousFrameIsRecording = IsRecording;
     }
