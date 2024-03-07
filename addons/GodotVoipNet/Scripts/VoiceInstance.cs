@@ -121,20 +121,32 @@ public partial class VoiceInstance : Node
 
         _delayedReceiveBuffer.Enqueue((data, delay));
     }
-
+    private long _lastProcessedTime = 0;
     private void ProcessVoice()
     {
         int framesAvailable = _playback?.GetFramesAvailable() ?? 0;
         if (framesAvailable < 1) { return; }
 
         long now = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
-        while (_delayedReceiveBuffer.Any() && _delayedReceiveBuffer.Peek().ms < now)
+        long unixMsConversion = 1000;
+
+        //get last 4 digit of the current time
+        now = now % unixMsConversion;
+        if(_delayedReceiveBuffer.Any())
         {
-            _receiveBuffer = [.._receiveBuffer, .. _delayedReceiveBuffer.Dequeue().buffer];
+            GD.Print($"{now} | {last4Ms()}");
         }
+        //get last 4 digits of the time of the first element in the queue
+        while (_delayedReceiveBuffer.Any() && (last4Ms() < now || overflowShouldBeHandled()))
+        {
+            _receiveBuffer = [.. _receiveBuffer, .. _delayedReceiveBuffer.Dequeue().buffer];
+        }
+        _lastProcessedTime = now;
 
         _playback?.PushBuffer(_receiveBuffer);
         _receiveBuffer = [];
+        bool overflowShouldBeHandled() => (now < _lastProcessedTime && last4Ms() > _lastProcessedTime);
+        long last4Ms() => _delayedReceiveBuffer.Peek().ms % unixMsConversion;
     }
 
     private void ProcessMic()
