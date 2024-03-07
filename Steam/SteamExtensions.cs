@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.InteropServices;
 
 namespace Steam;
@@ -39,5 +41,12 @@ internal static class SteamExtensions
         {
             Marshal.FreeHGlobal(ptr);
         }
+    }
+    public static IEnumerable<IEnumerable<T>> Batch<T>(this IEnumerable<T> items,
+                                                   int maxItems)
+    {
+        return items.Select((item, inx) => new { item, inx })
+                    .GroupBy(x => x.inx / maxItems)
+                    .Select(g => g.Select(x => x.item));
     }
 }

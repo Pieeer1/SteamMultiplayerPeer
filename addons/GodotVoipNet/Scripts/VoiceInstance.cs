@@ -11,6 +11,7 @@ public partial class VoiceInstance : Node
     private AudioEffectCapture _audioEffectCapture = null!;
     private AudioStreamGeneratorPlayback? _playback;
     private Vector2[] _receiveBuffer = [];
+    private int[] _intervalBuffer = [];
     private bool _previousFrameIsRecording = false;
 
     private Vector2[] _sendingBuffer = [];
@@ -113,8 +114,8 @@ public partial class VoiceInstance : Node
         _playback = _audioStreamPlayer3D.GetStreamPlayback() as AudioStreamGeneratorPlayback;
     }
 
-    [Rpc(CallLocal = false, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
-    public void Speak(Vector2[] data, int id, Vector3 position)
+    [Rpc(CallLocal = true, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
+    public void Speak(Vector2[] data, int[] intervalBuffer, int id, Vector3 position)
     {
         if (_audioStreamPlayer3D is not null)
         {
@@ -122,6 +123,7 @@ public partial class VoiceInstance : Node
         }
         ReceivedVoiceData?.Invoke(this, new VoiceDataEventArgs(data, id));
 
+        _intervalBuffer = [.. intervalBuffer];
         _receiveBuffer = [.. data];
     }
 
@@ -133,7 +135,8 @@ public partial class VoiceInstance : Node
         _playback?.PushBuffer(_receiveBuffer);
         _receiveBuffer = [];
     }
-
+    private bool _isAlreadyListening = false;
+    private int[] _sendingIntervalBuffer = [];
     private void ProcessMic()
     {
         if (IsRecording)
@@ -151,11 +154,22 @@ public partial class VoiceInstance : Node
                 _audioEffectCapture?.ClearBuffer();
             }
 
-            _extraSendingBuffer = [.. _extraSendingBuffer, .._audioEffectCapture?.GetBuffer(_audioEffectCapture?.GetFramesAvailable() ?? 0) ?? []]; // not working, look into
+            int framesAvailable = _audioEffectCapture?.GetFramesAvailable() ?? 0;
+            _extraSendingBuffer = [.. _extraSendingBuffer, .._audioEffectCapture?.GetBuffer(framesAvailable) ?? []]; // not working, look into
+            _sendingIntervalBuffer = [.. _sendingIntervalBuffer, framesAvailable];
+            if (!_isAlreadyListening)
+            {
+                _isAlreadyListening = true;
 
-            StartBatchingTimer();
-
-
+                Task.Delay(TimeSpan.FromMilliseconds(100)).ContinueWith(o =>
+                {
+                    _sendingBuffer = [.. _extraSendingBuffer];
+                    _isAlreadyListening = false;
+                    _audioEffectCapture?.ClearBuffer();
+                    _extraSendingBuffer = [];
+                    _sendingIntervalBuffer = [];
+                });
+            }
             if (_sendingBuffer.Any())
             {
                 float maxValue = 0.0f;
@@ -176,10 +190,10 @@ public partial class VoiceInstance : Node
                 }
                 if (ShouldListen)
                 {
-                    Speak(_sendingBuffer, id, position);
+                    //Speak(_sendingBuffer, _sendingIntervalBuffer, id, position);
                 }
 
-                Rpc(nameof(Speak), [_sendingBuffer, id, position]);
+                Rpc(nameof(Speak), [_sendingBuffer, _sendingIntervalBuffer, id, position]);
 
 
                 SentVoiceData?.Invoke(this, new VoiceDataEventArgs(_sendingBuffer, Multiplayer.GetUniqueId()));
@@ -187,19 +201,5 @@ public partial class VoiceInstance : Node
             }
         }
         _previousFrameIsRecording = IsRecording;
-
-        void StartBatchingTimer()
-        {
-            Task.Delay(TimeSpan.FromMilliseconds(250)).ContinueWith(o =>
-            {
-                _sendingBuffer = [.. _extraSendingBuffer];
-                _extraSendingBuffer = [];
-                _audioEffectCapture?.ClearBuffer();
-                if (IsRecording)
-                {
-                    StartBatchingTimer();
-                }
-            });
-        }
     }
 }
