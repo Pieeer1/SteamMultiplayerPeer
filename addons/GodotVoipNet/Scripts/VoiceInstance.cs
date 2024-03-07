@@ -135,7 +135,7 @@ public partial class VoiceInstance : Node
 
         while (_delayedReceiveBuffer.Any() && (last4Ms() < now || overflowShouldBeHandled()))
         {
-            _receiveBuffer = [.. _delayedReceiveBuffer.Dequeue().buffer];
+            _receiveBuffer = [.._receiveBuffer, .. _delayedReceiveBuffer.Dequeue().buffer];
         }
         _lastProcessedTime = now;
 
