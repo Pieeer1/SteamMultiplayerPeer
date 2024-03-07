@@ -167,9 +167,11 @@ public partial class VoiceInstance : Node
                 {
                     Speak(data, Multiplayer.GetUniqueId(), GetParent<Node3D>().GlobalPosition);
                 }
+                int id = Multiplayer.GetUniqueId();
+                Vector3 position = GetParent<Node3D>().GlobalPosition;
                 Task.Delay(new TimeSpan(0, 0, 0, 0, 10)).ContinueWith(o =>
                 {
-                    Rpc(nameof(Speak), [data, Multiplayer.GetUniqueId(), GetParent<Node3D>().GlobalPosition]);
+                    Callable.From(() => Rpc(nameof(Speak), [data, id, position])).CallDeferred();
                 });
                 
                 SentVoiceData?.Invoke(this, new VoiceDataEventArgs(data, Multiplayer.GetUniqueId()));
