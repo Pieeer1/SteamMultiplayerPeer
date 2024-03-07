@@ -133,31 +133,43 @@ public partial class VoiceInstance : Node
         _playback?.PushBuffer(_receiveBuffer);
         _receiveBuffer = [];
     }
-
+    private bool _isAlreadyListening = false;
+    private Vector2[] _sendingBuffer = [];
     private void ProcessMic()
     {
         if (IsRecording)
         {
+            int id = Multiplayer.GetUniqueId();
+            Vector3 position = GetParent<Node3D>().GlobalPosition;
+
             if (_audioEffectCapture is null)
             {
                 CreateMic();
             }
-            if (!_previousFrameIsRecording)
+            if (!_isAlreadyListening)
             {
-                _audioEffectCapture?.ClearBuffer();
-            }
-            Vector2[] stereoData = _audioEffectCapture?.GetBuffer(_audioEffectCapture.GetFramesAvailable()) ?? [];
-            if (stereoData.Any())
-            {
-                var data = new Vector2[stereoData.Length];
+                _isAlreadyListening = true;
 
+                Task.Delay(TimeSpan.FromSeconds(0.1)).ContinueWith(o =>
+                {
+                    _sendingBuffer = _audioEffectCapture?.GetBuffer(_audioEffectCapture.GetFramesAvailable()) ?? [];
+                    _isAlreadyListening = false;
+                    _audioEffectCapture?.ClearBuffer();
+
+                }); 
+            }
+            if (_sendingBuffer.Any())
+            {
                 float maxValue = 0.0f;
 
-                for (int i = 0; i < stereoData.Length; i++)
+                for (int i = 0; i < _sendingBuffer.Length; i++)
                 {
-                    float value = (stereoData[i].X + stereoData[i].Y) / 2.0f;
+                    float value = (_sendingBuffer[i].X + _sendingBuffer[i].Y) / 2.0f;
                     maxValue = Math.Max(value, maxValue);
-                    data[i] = IsStereo ? stereoData[i] : new Vector2(value, value);
+                    if (IsStereo)
+                    {
+                        _sendingBuffer[i] = new Vector2(value, value);
+                    }
                 }
                 if (maxValue < InputThreshold)
                 {
@@ -165,17 +177,19 @@ public partial class VoiceInstance : Node
                 }
                 if (ShouldListen)
                 {
-                    Speak(data, Multiplayer.GetUniqueId(), GetParent<Node3D>().GlobalPosition);
+                    Speak(_sendingBuffer, id, position);
                 }
-                int id = Multiplayer.GetUniqueId();
-                Vector3 position = GetParent<Node3D>().GlobalPosition;
-                Task.Delay(new TimeSpan(0, 0, 0, 0, 10)).ContinueWith(o =>
-                {
-                    Callable.From(() => Rpc(nameof(Speak), [data, id, position])).CallDeferred();
-                });
-                
-                SentVoiceData?.Invoke(this, new VoiceDataEventArgs(data, Multiplayer.GetUniqueId()));
+
+                Rpc(nameof(Speak), [_sendingBuffer, id, position]);
+
+
+                SentVoiceData?.Invoke(this, new VoiceDataEventArgs(_sendingBuffer, Multiplayer.GetUniqueId()));
+                _sendingBuffer = [];
             }
+        }
+        else 
+        {
+            _audioEffectCapture?.ClearBuffer();
         }
         _previousFrameIsRecording = IsRecording;
     }
