@@ -13,6 +13,9 @@ public partial class VoiceInstance : Node
     private Vector2[] _receiveBuffer = [];
     private bool _previousFrameIsRecording = false;
 
+    private bool _isAlreadyListening = false;
+    private Vector2[] _sendingBuffer = [];
+
     private int _unixMsDelay = 100; // one tenth hudnsecond for now
 
     private AudioStreamPlayer3D? _audioStreamPlayer3D;
@@ -119,10 +122,7 @@ public partial class VoiceInstance : Node
         }
         ReceivedVoiceData?.Invoke(this, new VoiceDataEventArgs(data, id));
 
-        Task.Delay(new TimeSpan(0, 0, 0, 0, 10)).ContinueWith(o =>
-        {
-            _receiveBuffer = [.. data];
-        });
+        _receiveBuffer = [.. data];
     }
 
     private void ProcessVoice()
@@ -133,8 +133,7 @@ public partial class VoiceInstance : Node
         _playback?.PushBuffer(_receiveBuffer);
         _receiveBuffer = [];
     }
-    private bool _isAlreadyListening = false;
-    private Vector2[] _sendingBuffer = [];
+
     private void ProcessMic()
     {
         if (IsRecording)
