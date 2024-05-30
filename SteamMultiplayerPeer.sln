@@ -10,7 +10,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		.gitignore = .gitignore
 		.github\actions\godot-install\action.yml = .github\actions\godot-install\action.yml
 		.github\workflows\build_test_deploy.yml = .github\workflows\build_test_deploy.yml
-		.github\workflows\GitVersion.yml = .github\workflows\GitVersion.yml
+		.github\version\GitVersion.yml = .github\version\GitVersion.yml
 	EndProjectSection
 EndProject
 Global

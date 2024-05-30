@@ -102,6 +102,10 @@ public partial class SteamManager : Node
     }
     public void LeaveLobby()
     {
+        if (IsHost)
+        {
+            IsHost = false;
+        }
         _hostedLobby.Leave();
     }
     private async void OnGameLobbyJoinRequested(Lobby lobby, SteamId id)

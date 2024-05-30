@@ -24,7 +24,7 @@ jobs:
         uses: gittools/actions/gitversion/execute@v0 
         with:
           useConfigFile: true
-          configFilePath: .github/workflows/GitVersion.yml
+          configFilePath: .github/version/GitVersion.yml
 
       - name: "Install Godot Mono '4.2.1'"
         uses: ./.github/actions/godot-install
@@ -45,7 +45,7 @@ jobs:
           dotnet restore SteamMultiplayerPeer.csproj
           dotnet build --no-restore SteamMultiplayerPeer.csproj
 
-
+          #this is 1000% going to fail. I need the container to have steam running on it with an authenticated account. Super duper fun stuff here, not sure how I am going to handle this. TODO 
       - name: "Run Unit Tests"
         if: ${{ !cancelled() }}
         timeout-minutes: 5
