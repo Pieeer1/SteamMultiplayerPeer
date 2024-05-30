@@ -398,3 +398,8 @@ FodyWeavers.xsd
 *.sln.iml
 /.godot
 /settings.json
+
+# Gd Unit 4
+.godot
+
+gdunit4_testadapter/

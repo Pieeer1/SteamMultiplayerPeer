@@ -7,6 +7,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SteamMultiplayerPeer", "Ste
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{423D8126-6408-4A6F-890C-B828A7E01884}"
 	ProjectSection(SolutionItems) = preProject
+		.gitignore = .gitignore
 		.github\actions\godot-install\action.yml = .github\actions\godot-install\action.yml
 		.github\workflows\build_test_deploy.yml = .github\workflows\build_test_deploy.yml
 		.github\workflows\GitVersion.yml = .github\workflows\GitVersion.yml
