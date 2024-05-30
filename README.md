@@ -8,11 +8,15 @@ The goal of this project is to greatly simplify the way that Steam Multiplayer i
 
 The example project shown above should give a good example on how to start up. A couple key things to note
 
+Nuget Packaging is not working fully. Some nuance with the multi-platform builds. I will get to it sometime.
+
 dotnet
 `dotnet add package SteamMultiplayerPeer`
 
 package manager
 `Install-Package SteamMultiplayerPeer`
+
+In the meantime, you can copy the code in the Steam Folder to your project, as well as the dll's, and follow the instructions below.
 
 Once the package is installed you will have to add the following to the csproj:
 ```xml
