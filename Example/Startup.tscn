@@ -1,7 +1,7 @@
 [gd_scene load_steps=3 format=3 uid="uid://b27h0j08ndoxw"]
 
-[ext_resource type="Script" path="res://Steam/SteamManager.cs" id="1_ngv6v"]
-[ext_resource type="Script" path="res://Example/UI.cs" id="2_tenw6"]
+[ext_resource type="Script" uid="uid://b0smp6qoaxdgl" path="res://Steam/SteamManager.cs" id="1_ngv6v"]
+[ext_resource type="Script" uid="uid://db1gw7slpkqjn" path="res://Example/UI.cs" id="2_tenw6"]
 
 [node name="Startup" type="Node3D"]
 
@@ -35,6 +35,10 @@ text = "Host"
 custom_minimum_size = Vector2(150, 40)
 layout_mode = 2
 placeholder_text = "Lobby Id"
+
+[node name="LeaveGame" type="Button" parent="UI/VBoxContainer"]
+layout_mode = 2
+text = "Leave"
 
 [node name="JoinGame" type="Button" parent="UI/VBoxContainer"]
 layout_mode = 2
@@ -75,5 +79,5 @@ layout_mode = 2
 [node name="PlayerHolder" type="Node3D" parent="."]
 
 [node name="MultiplayerSpawner" type="MultiplayerSpawner" parent="."]
-_spawnable_scenes = PackedStringArray("res://Example/Player.tscn")
+_spawnable_scenes = PackedStringArray("uid://d2isx4pc6x0ww")
 spawn_path = NodePath("../PlayerHolder")

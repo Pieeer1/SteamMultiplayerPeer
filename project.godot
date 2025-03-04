@@ -12,7 +12,7 @@ config_version=5
 
 config/name="SteamMultiplayerPeer"
 run/main_scene="res://Example/Startup.tscn"
-config/features=PackedStringArray("4.2", "C#", "Forward Plus")
+config/features=PackedStringArray("4.4", "C#", "Forward Plus")
 config/icon="res://icon.svg"
 
 [dotnet]

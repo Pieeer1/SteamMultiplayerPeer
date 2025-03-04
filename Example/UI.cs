@@ -9,6 +9,7 @@ internal partial class UI : Control
 {
     private Button _hostButton = null!;
     private Button _joinButton = null!;
+    private Button _leaveGameButton = null!;
     private Button _quitButton = null!;
     private TextEdit _lobbyIdLabel = null!;
     private TextEdit _textEdit = null!;
@@ -20,6 +21,7 @@ internal partial class UI : Control
     {
         _hostButton = GetNode<Button>("VBoxContainer/HostGame");
         _joinButton = GetNode<Button>("VBoxContainer/JoinGame");
+        _leaveGameButton = GetNode<Button>("VBoxContainer/LeaveGame");
         _quitButton = GetNode<Button>("VBoxContainer/QuitGame");
         _lobbyIdLabel = GetNode<TextEdit>("LobbyVbox/HBoxContainer/LobbyIdLabel");
         _textEdit = GetNode<TextEdit>("VBoxContainer/TextEdit");
@@ -30,6 +32,15 @@ internal partial class UI : Control
 
         _hostButton.Pressed += async () => await OnHostButtonPressed();
         _joinButton.Pressed += async () => await OnJoinButtonPressed();
+
+        _leaveGameButton.Pressed += () =>
+        {
+            _inLobby = false;
+            Multiplayer.MultiplayerPeer?.Close();
+            Multiplayer.MultiplayerPeer = null;
+            this.SteamManager().LeaveLobby();
+        };
+
         _quitButton.Pressed += OnQuitButtonPressed;
 
         this.SteamManager().OnLobbyRefreshCompleted += (List<Lobby> lobbies) => // you would pretty obviously not want to do this exact implementation in a real game, but for the sake of the example
@@ -60,6 +71,7 @@ internal partial class UI : Control
     {
         _hostButton.Disabled = _inLobby;
         _joinButton.Disabled = string.IsNullOrEmpty(_textEdit.Text) || _inLobby;
+        _leaveGameButton.Disabled = !_inLobby;
     }
 
 

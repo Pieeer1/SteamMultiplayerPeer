@@ -403,3 +403,5 @@ FodyWeavers.xsd
 .godot
 
 gdunit4_testadapter/
+
+*.old

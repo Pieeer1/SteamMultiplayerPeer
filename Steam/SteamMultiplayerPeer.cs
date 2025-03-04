@@ -117,6 +117,8 @@ public partial class SteamMultiplayerPeer : MultiplayerPeerExtension
         {
             _steamConnectionManager?.Close();
         }
+
+        _steamSocketManager?.Close();
         _peerIdToConnection.Clear();
         _connectionsBySteamId.Clear();
         _mode = Mode.None;
