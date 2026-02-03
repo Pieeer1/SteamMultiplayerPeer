@@ -51,13 +51,4 @@
     <None Include="README.md" Pack="true" PackagePath="\" />
     <None Include="LICENSE.txt" Pack="true" PackagePath="" />
   </ItemGroup>
-  <ItemGroup>
-    <PackageReference Update="Godot.SourceGenerators" Version="4.6.0" />
-  </ItemGroup>
-  <ItemGroup>
-    <PackageReference Update="GodotSharp" Version="4.6.0" />
-  </ItemGroup>
-  <ItemGroup>
-    <PackageReference Update="GodotSharpEditor" Version="4.6.0" />
-  </ItemGroup>
 </Project>
