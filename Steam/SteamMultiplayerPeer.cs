@@ -30,7 +30,7 @@ public partial class SteamMultiplayerPeer : MultiplayerPeerExtension
     private ConnectionStatus _connectionStatus = ConnectionStatus.Disconnected;
     private TransferModeEnum _transferMode = TransferModeEnum.Reliable;
 
-    private readonly Queue<SteamPacketPeer> _incomingPackets = new Queue<SteamPacketPeer>();
+    private readonly Queue<SteamPacketPeer?> _incomingPackets = new Queue<SteamPacketPeer?>();
     private SteamPacketPeer? _nextReceivedPacket;
 
     private SteamId _steamId;
@@ -185,7 +185,7 @@ public partial class SteamMultiplayerPeer : MultiplayerPeerExtension
     {
         if (_incomingPackets.TryDequeue(out SteamPacketPeer? packet))
         {
-            return packet.Data;
+            return packet?.Data ?? [];
         }
 
         return [];
