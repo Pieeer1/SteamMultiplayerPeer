@@ -2,7 +2,7 @@
 using static Godot.MultiplayerPeer;
 
 namespace Steam;
-public partial class SteamPacketPeer : RefCounted
+public struct SteamPacketPeer
 {
     public SteamPacketPeer(byte[] data, TransferModeEnum transferMode = TransferModeEnum.Reliable)
     {
