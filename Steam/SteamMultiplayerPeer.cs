@@ -31,7 +31,6 @@ public partial class SteamMultiplayerPeer : MultiplayerPeerExtension
     private TransferModeEnum _transferMode = TransferModeEnum.Reliable;
 
     private readonly Queue<SteamPacketPeer?> _incomingPackets = new Queue<SteamPacketPeer?>();
-    private SteamPacketPeer? _nextReceivedPacket;
 
     private SteamId _steamId;
 
